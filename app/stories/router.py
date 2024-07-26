@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 
 from stories.service import StoryService
 from stories.schemas import StoryCreateResponseModel, StoryCreateModel, StoryListModel, StoryUpdateModel, StoryUpdateResponseModel
@@ -21,3 +21,7 @@ async def get_story_by_slug(slug: str, service: StoryService = Depends(StoryServ
 @router.patch("/stories/{slug}", response_model=StoryUpdateResponseModel)
 async def update_story(slug: str, update_data: StoryUpdateModel, service: StoryService = Depends(StoryService)):
     return await service.update_story_by_slug(slug=slug, update_data=update_data)
+
+@router.delete("/stories/{slug}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_story(slug: str, service: StoryService = Depends(StoryService)):
+    return await service.delete_game_by_slug(slug=slug)
