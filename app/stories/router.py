@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, status
 
 from stories.service import StoryService
-from stories.schemas import StoryCreateResponseModel, StoryCreateModel, StoryListModel, StoryUpdateModel, StoryUpdateResponseModel
-
+from stories.schemas import StoryCreateResponseModel, StoryCreateModel, StoryGetModel, StoryUpdateModel, StoryUpdateResponseModel
+from core.pagination import LimitOffsetPage
 
 router = APIRouter()
 
@@ -10,12 +10,12 @@ router = APIRouter()
 async def create_story(game: StoryCreateModel, service: StoryService = Depends(StoryService)):
     return await service.create_story(payload=game)
 
-@router.get("/stories", response_model=list[StoryListModel])
-async def get_stories(service: StoryService = Depends(StoryService)):
+@router.get("/stories")
+async def list_stories(service: StoryService = Depends(StoryService)) -> LimitOffsetPage[StoryGetModel]:
     return await service.list_stories()
 
 @router.get("/stories/{slug}", response_model=StoryCreateResponseModel)
-async def get_story_by_slug(slug: str, service: StoryService = Depends(StoryService)):
+async def get_story(slug: str, service: StoryService = Depends(StoryService)):
     return await service.get_story_by_slug(slug)
 
 @router.patch("/stories/{slug}", response_model=StoryUpdateResponseModel)

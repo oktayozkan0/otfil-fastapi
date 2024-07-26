@@ -10,7 +10,7 @@ class StoryCreateResponseModel(BaseModel):
     title: str = Field(max_length=100)
     description: str = Field(max_length=500)
 
-class StoryListModel(StoryCreateResponseModel):
+class StoryGetModel(StoryCreateResponseModel):
     slug: str
     title: str = Field(max_length=100)
     description: str = Field(max_length=500)

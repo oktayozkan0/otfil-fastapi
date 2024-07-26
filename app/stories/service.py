@@ -1,6 +1,7 @@
 from datetime import datetime
-from sqlalchemy import select, update, delete
+from sqlalchemy import select, update
 from sqlalchemy.orm import load_only
+from fastapi_pagination.ext.sqlalchemy import paginate
 
 from stories.models import Stories
 from stories.schemas import StoryCreateModel
@@ -16,10 +17,8 @@ class StoryService(BaseService):
         return data
 
     async def list_stories(self):
-        stmt = select(Stories).where(Stories.is_active==True).options(load_only(Stories.description, Stories.title, Stories.slug))
-        result = await self.db.execute(stmt)
-        instance = result.scalars().all()
-        return instance
+        stories = await paginate(self.db, select(Stories).where(Stories.is_active==True).options(load_only(Stories.description, Stories.title, Stories.slug)))
+        return stories
 
     async def get_story_by_slug(self, slug: str):
         stmt = select(Stories).where(Stories.slug==slug,Stories.is_active==True).options(load_only(Stories.description, Stories.title, Stories.slug))
