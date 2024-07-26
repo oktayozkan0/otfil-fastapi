@@ -5,9 +5,21 @@ class StoryCreateModel(BaseModel):
     title: str = Field(max_length=100)
     description: str = Field(max_length=500)
 
-class StoryCreateResponseModel(StoryCreateModel):
-    id: int
+class StoryCreateResponseModel(BaseModel):
     slug: str
+    title: str = Field(max_length=100)
+    description: str = Field(max_length=500)
 
 class StoryListModel(StoryCreateResponseModel):
-    pass
+    slug: str
+    title: str = Field(max_length=100)
+    description: str = Field(max_length=500)
+
+class StoryUpdateModel(BaseModel):
+    title: str = Field(max_length=100)
+    description: str = Field(max_length=500)
+
+class StoryUpdateResponseModel(BaseModel):
+    slug: str
+    title: str = Field(max_length=100)
+    description: str = Field(max_length=500)
