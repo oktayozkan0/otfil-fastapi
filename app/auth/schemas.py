@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel, EmailStr, Field, field_validator
 
 
@@ -5,6 +6,8 @@ class UserSignupRequest(BaseModel):
     email: EmailStr
     username: str = Field(..., min_length=5, max_length=25)
     password: str
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
 
     @field_validator("username")
     def reject_email(cls, v):
