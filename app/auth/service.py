@@ -1,10 +1,11 @@
+from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import select
 
 from core.services import BaseService
 from auth.schemas import UserSignupRequest
 from auth.models import Users
-from auth.exceptions import AlreadyExistsException
-from auth.utils import get_hashed_password
+from auth.exceptions import AlreadyExistsException, InvalidCredentialsException
+from auth.utils import get_hashed_password, verify_password, create_access_token, create_refresh_token
 
 
 class AuthService(BaseService):
@@ -30,3 +31,17 @@ class AuthService(BaseService):
         data = Users(**payload.model_dump())
         self.db.add(data)
         await self.db.commit()
+
+    async def login_user(self, form_data: OAuth2PasswordRequestForm):
+        user = select(Users).where((Users.username==form_data.username) | (Users.email==form_data.username))
+        results = await self.db.execute(user)
+        instance = results.scalar_one_or_none()
+        if not instance:
+            raise InvalidCredentialsException
+        hashed_pass = instance.password
+        if not verify_password(form_data.password, hashed_pass):
+            raise InvalidCredentialsException
+        return {
+            "access_token": create_access_token(instance.email),
+            "refresh_token": create_refresh_token(instance.email)
+        }
