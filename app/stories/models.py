@@ -2,7 +2,7 @@ from sqlalchemy import Column, String, Boolean, event
 from slugify import slugify
 from time import time
 
-from app.core.models import Base
+from core.models import Base
 
 
 class Stories(Base):

@@ -11,3 +11,17 @@ class UserSignupRequest(BaseModel):
         if "@" in v:
             raise ValueError("Username can not contain '@' symbol")
         return v
+
+class TokenResponse(BaseModel):
+    access_token: str
+    refresh_token: str
+
+class TokenPayload(BaseModel):
+    sub: str = None
+    exp: int = None
+
+class UserSystem(BaseModel):
+    email: EmailStr
+    username: str
+    first_name: str | None = None
+    last_name: str | None = None
