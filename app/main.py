@@ -10,6 +10,7 @@ from core.config import get_app_settings
 from core.exceptions import http_error_handler
 from healthcheck import router as health_check_router
 from stories.router import router as story_router
+from auth.router import router as auth_router
 
 
 def get_app() -> FastAPI:
@@ -19,6 +20,7 @@ def get_app() -> FastAPI:
     v1_prefix = "/api/v1"
     application.include_router(health_check_router, prefix=v1_prefix)
     application.include_router(story_router, prefix=v1_prefix)
+    application.include_router(auth_router, prefix=v1_prefix)
 
     add_pagination(application)
     return application

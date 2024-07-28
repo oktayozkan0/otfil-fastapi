@@ -14,7 +14,7 @@ class AppSettings(BaseModel):
     openapi_url: str = None
     docs_url: str = None
     redoc_url: str = None
-    jwt_scret_key: str = "SUPER_SECRET_KEY"
+    jwt_secret_key: str = "SUPER_SECRET_KEY"
     jwt_refresh_secret_key: str = "SUPER_SECRET_REFRESH_KEY"
 
 def get_app_settings() -> AppSettings:

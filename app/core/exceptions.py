@@ -1,5 +1,4 @@
 from typing import Any, Dict
-from typing_extensions import Annotated, Doc
 from fastapi import HTTPException
 from fastapi import status
 from starlette.requests import Request
