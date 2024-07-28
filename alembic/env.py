@@ -1,13 +1,40 @@
+import sys
+import pathlib
+sys.path.append(str(pathlib.Path(__file__).resolve().parent.parent / "app"))
+
 import asyncio
+import importlib
+import inspect
 
 from alembic import context
 from sqlalchemy.ext.asyncio import create_async_engine
+from sqlalchemy import MetaData
 
 from app.core.config import get_app_settings
-from app.stories import models
+from app.apps import APPS
 
+LOADED_MODELS = []
+for app in APPS:
+    try:
+        module = f"app.{app}.models"
+        loaded_module = importlib.import_module(f"app.{app}.models")
+        classes = inspect.getmembers(loaded_module, inspect.isclass)
+        LOADED_MODELS.extend([
+            class_obj
+            for _, class_obj in inspect.getmembers(loaded_module, inspect.isclass)
+            if class_obj.__module__ == module
+        ])
+    except ModuleNotFoundError:
+        raise ImportError
 
-target_metadata = models.Base.metadata
+def combine_metadata(*args):
+    m = MetaData()
+    for metadata in args:
+        for t in metadata.tables.values():
+            t.tometadata(m)
+    return m
+
+target_metadata = combine_metadata(*[i.metadata for i in LOADED_MODELS])
 
 settings = get_app_settings()
 DB_URL = settings.database_url
