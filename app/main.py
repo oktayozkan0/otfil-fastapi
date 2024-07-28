@@ -16,9 +16,10 @@ def get_app() -> FastAPI:
     settings = get_app_settings()
     application = FastAPI(**settings.model_dump())
     application.add_exception_handler(HTTPException, http_error_handler)
-    application.include_router(health_check_router, prefix="/api/v1")
-    application.include_router(story_router, prefix="/api/v1")
-    
+    v1_prefix = "/api/v1"
+    application.include_router(health_check_router, prefix=v1_prefix)
+    application.include_router(story_router, prefix=v1_prefix)
+
     add_pagination(application)
     return application
 

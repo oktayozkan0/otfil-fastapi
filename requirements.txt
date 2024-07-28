@@ -8,3 +8,6 @@ alembic==1.13.2
 asyncpg==0.29.0
 python-slugify==8.0.4
 fastapi-pagination==0.12.26
+python-jose[cryptography]==3.3.0
+passlib[bcrypt]==1.7.4
+python-multipart==0.0.9

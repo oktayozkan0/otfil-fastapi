@@ -4,6 +4,7 @@ from stories.service import StoryService
 from stories.schemas import StoryCreateResponseModel, StoryCreateModel, StoryGetModel, StoryUpdateModel, StoryUpdateResponseModel
 from core.pagination import LimitOffsetPage
 
+
 router = APIRouter()
 
 @router.post("/stories", response_model=StoryCreateResponseModel)

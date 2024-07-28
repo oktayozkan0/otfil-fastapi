@@ -3,6 +3,7 @@ from fastapi_pagination.ext.sqlalchemy import paginate
 from typing import TypeVar, Generic
 from fastapi import Query
 
+
 T = TypeVar("T")
 
 class LimitOffsetParams(BaseLimitOffsetParams):
