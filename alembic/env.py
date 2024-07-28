@@ -13,6 +13,7 @@ from sqlalchemy import MetaData
 from app.core.config import get_app_settings
 from app.apps import APPS
 
+# this is pretty painful
 LOADED_MODELS = []
 for app in APPS:
     try:

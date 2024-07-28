@@ -17,6 +17,3 @@ class Stories(Base):
             target.slug = f"{slugify(value, max_length=30)}-{int(time() * 1000)}"
 
 event.listen(Stories.title, "set", Stories.generate_slug, retval=False)
-
-class Scenes(Base):
-    title = Column(String(100))
