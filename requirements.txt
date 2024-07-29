@@ -11,5 +11,4 @@ fastapi-pagination==0.12.26
 python-jose[cryptography]==3.3.0
 passlib[bcrypt]==1.7.4
 python-multipart==0.0.9
-aioredis==2.0.1
-hiredis==3.0.0
+redis==5.0.7
