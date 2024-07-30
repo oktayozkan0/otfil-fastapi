@@ -25,8 +25,24 @@ class StoryUpdateResponseModel(BaseModel):
     title: str = Field(max_length=100)
     description: str = Field(max_length=500)
 
+class StoryInternal(BaseModel):
+    id: int
+    title: str
+    description: str
+    slug: str
+    is_active: bool
+    owner_id: int
+
 class SceneCreateRequest(BaseModel):
     text: str
     title: str
     x: float
     y: float
+
+class SceneCreateResponse(BaseModel):
+    text: str
+    slug: str
+    title: str
+    x: float
+    y: float
+    is_active: bool

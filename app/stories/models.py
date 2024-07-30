@@ -12,7 +12,7 @@ class Stories(Base):
     is_active = Column(Boolean, default=False)
     owner_id = Column(Integer, ForeignKey("users.id"))
 
-    scenes = relationship("Scenes", back_populates="game")
+    scenes = relationship("Scenes", back_populates="story")
 
 class Scenes(Base):
     text = Column(String(255), nullable=False)
@@ -21,9 +21,9 @@ class Scenes(Base):
     y = Column(Float, default=0)
     is_active = Column(Boolean, default=True)
     slug = Column(String(50))
-    game_id = Column(Integer, ForeignKey("stories.id"))
+    story_id = Column(Integer, ForeignKey("stories.id"))
 
-    game = relationship("Stories", back_populates="scenes")
+    story = relationship("Stories", back_populates="scenes")
 
 event.listen(Stories.title, "set", Stories.generate_slug, retval=False)
 event.listen(Scenes.title, "set", Scenes.generate_slug, retval=False)

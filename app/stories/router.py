@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Depends, status
 
 from stories.service import StoryService
-from stories.schemas import StoryCreateResponseModel, StoryCreateModel, StoryGetModel, StoryUpdateModel, StoryUpdateResponseModel, SceneCreateRequest
+from stories.schemas import StoryCreateResponseModel, StoryCreateModel, StoryGetModel, StoryUpdateModel, StoryUpdateResponseModel, SceneCreateRequest, StoryInternal, SceneCreateResponse
 from stories.dependencies import get_story_dep
 from core.pagination import LimitOffsetPage
 from auth.schemas import UserSystem
@@ -11,8 +11,8 @@ from auth.dependencies import get_current_user
 router = APIRouter(tags=["Stories"], prefix="/stories")
 
 @router.post("", response_model=StoryCreateResponseModel)
-async def create_story(game: StoryCreateModel, service: StoryService = Depends(StoryService), user: UserSystem = Depends(get_current_user)):
-    return await service.create_story(payload=game, user=user)
+async def create_story(story: StoryCreateModel, service: StoryService = Depends(StoryService), user: UserSystem = Depends(get_current_user)):
+    return await service.create_story(payload=story, user=user)
 
 @router.get("")
 async def list_stories(service: StoryService = Depends(StoryService)) -> LimitOffsetPage[StoryGetModel]:
@@ -30,11 +30,11 @@ async def update_story(slug: str, update_data: StoryUpdateModel, service: StoryS
 async def delete_story(slug: str, service: StoryService = Depends(StoryService), user: UserSystem = Depends(get_current_user)):
     return await service.delete_game_by_slug(slug=slug, user=user)
 
-@router.post("/{slug}/scenes")
+@router.post("/{slug}/scenes", response_model=SceneCreateResponse)
 async def create_scene(
     payload: SceneCreateRequest,
     service: StoryService = Depends(StoryService),
-    story: StoryGetModel = Depends(get_story_dep),
+    story: StoryInternal = Depends(get_story_dep),
     user: UserSystem = Depends(get_current_user)
 ):
-    return await service.create_scene(story=story, payload=payload)
+    return await service.create_scene(story=story, payload=payload, user=user)
