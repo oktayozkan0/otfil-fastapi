@@ -35,6 +35,7 @@ class StoryService(BaseService):
             raise NotFoundException(detail=f"Slug {slug} not found")
         update_stmt = update(Stories).where(Stories.slug==slug).values(**update_data.model_dump(exclude_none=True)).returning(Stories).options(load_only(Stories.slug, Stories.title, Stories.description))
         update_story = await self.db.execute(update_stmt)
+        await self.db.commit()
         update_instance = update_story.scalar_one_or_none()
         return update_instance or {}
 

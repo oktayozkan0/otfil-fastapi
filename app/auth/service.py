@@ -1,12 +1,14 @@
+from datetime import datetime, UTC
 from fastapi.security import OAuth2PasswordRequestForm
 from sqlalchemy import select
+from jose import jwt
 
 from core.services import BaseService
 from core.redis import get_user_refresh_token, set_user_refresh_token
-from auth.schemas import UserSignupRequest, TokenResponse
+from auth.schemas import UserSignupRequest, TokenResponse, RefreshTokenRequest, TokenPayload
 from auth.models import Users
-from auth.exceptions import AlreadyExistsException, InvalidCredentialsException
-from auth.utils import get_hashed_password, verify_password, create_access_token, create_refresh_token
+from auth.exceptions import AlreadyExistsException, InvalidCredentialsException, UnauthorizedException
+from auth.utils import get_hashed_password, verify_password, create_access_token, create_refresh_token, JWT_REFRESH_SECRET_KEY, ALGORITHM
 
 
 class AuthService(BaseService):
@@ -51,3 +53,28 @@ class AuthService(BaseService):
             await set_user_refresh_token(refresh_token, instance.email)
 
         return TokenResponse(access_token=access_token, refresh_token=refresh_token)
+
+    async def refresh_access_token(self, token: RefreshTokenRequest):
+        try:
+            payload = jwt.decode(
+                token=token.refresh_token,
+                key=JWT_REFRESH_SECRET_KEY,
+                algorithms=[ALGORITHM]
+            )
+            token_data = TokenPayload(**payload)
+            token_timestamp = datetime.fromtimestamp(token_data.exp, UTC)
+            now = datetime.now(UTC)
+            if token_timestamp < now:
+                raise UnauthorizedException
+        except:
+            raise InvalidCredentialsException
+
+        db_refresh_token: bytes = await get_user_refresh_token(token_data.sub)
+        user_refresh_token = token.refresh_token
+        if not db_refresh_token.decode("utf-8") == user_refresh_token:
+            raise InvalidCredentialsException
+        new_access_token = create_refresh_token(token_data.sub)
+        return TokenResponse(
+            access_token=new_access_token,
+            refresh_token=db_refresh_token
+        )

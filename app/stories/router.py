@@ -28,7 +28,7 @@ async def update_story(slug: str, update_data: StoryUpdateModel, service: StoryS
 
 @router.delete("/{slug}", status_code=status.HTTP_204_NO_CONTENT)
 async def delete_story(slug: str, service: StoryService = Depends(StoryService), user: UserSystem = Depends(get_current_user)):
-    return await service.delete_game_by_slug(slug=slug, user=user)
+    return await service.delete_story_by_slug(slug=slug, user=user)
 
 @router.post("/{slug}/scenes", response_model=SceneCreateResponse)
 async def create_scene(
