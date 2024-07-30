@@ -18,7 +18,7 @@ async def login(form_data: OAuth2PasswordRequestForm = Depends(), service: AuthS
 
 @router.get("/me")
 async def get_me(user: UserSystem = Depends(get_current_user)):
-    return await user
+    return user
 
 @router.post("/refresh")
 async def refresh_access_token(refresh_token: RefreshTokenRequest, service: AuthService = Depends(AuthService)):
