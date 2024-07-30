@@ -3,15 +3,16 @@ from sqlalchemy import select, update
 from sqlalchemy.orm import load_only
 from fastapi_pagination.ext.sqlalchemy import paginate
 
-from stories.models import Stories
-from stories.schemas import StoryCreateModel
+from stories.models import Stories, Scenes
+from stories.schemas import StoryCreateModel, SceneCreateRequest, StoryGetModel
 from core.services import BaseService
 from core.exceptions import NotFoundException
+from auth.schemas import UserSystem
 
 
 class StoryService(BaseService):
-    async def create_story(self, payload: StoryCreateModel):
-        data = Stories(**payload.model_dump())
+    async def create_story(self, payload: StoryCreateModel, user: UserSystem):
+        data = Stories(**payload.model_dump(), owner_id=user.id)
         self.db.add(data)
         await self.db.commit()
         return data
@@ -26,8 +27,8 @@ class StoryService(BaseService):
         instance = result.scalar_one_or_none()
         return instance or {}
 
-    async def update_story_by_slug(self, slug: str, update_data: StoryCreateModel):
-        stmt = select(Stories).where(Stories.slug==slug).options(load_only(Stories.slug))
+    async def update_story_by_slug(self, slug: str, update_data: StoryCreateModel, user: UserSystem):
+        stmt = select(Stories).where(Stories.slug==slug, Stories.owner_id==user.id).options(load_only(Stories.slug))
         story = await self.db.execute(stmt)
         instance = story.scalar_one_or_none()
         if not instance:
@@ -37,8 +38,8 @@ class StoryService(BaseService):
         update_instance = update_story.scalar_one_or_none()
         return update_instance or {}
 
-    async def delete_game_by_slug(self, slug: str) -> None:
-        stmt = select(Stories).where(Stories.slug==slug).options(load_only(Stories.slug, Stories.is_active))
+    async def delete_game_by_slug(self, slug: str, user: UserSystem) -> None:
+        stmt = select(Stories).where(Stories.slug==slug,Stories.owner_id==user.id).options(load_only(Stories.slug, Stories.is_active))
         story = await self.db.execute(stmt)
         instance = story.scalar_one_or_none()
         if not instance or not instance.is_active:
@@ -46,3 +47,9 @@ class StoryService(BaseService):
         delete_stmt = update(Stories).where(Stories.slug==slug).values(is_active=False,deleted_at=datetime.now())
         await self.db.execute(delete_stmt)
         await self.db.commit()
+
+    async def create_scene(self, story: StoryGetModel, payload: SceneCreateRequest):
+        data = Scenes(**payload.model_dump(), game_id=story.id)
+        self.db.add(data)
+        await self.db.commit()
+        return data

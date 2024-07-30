@@ -24,6 +24,7 @@ class TokenPayload(BaseModel):
     exp: int = None
 
 class UserSystem(BaseModel):
+    id: int
     email: EmailStr
     username: str
     first_name: str | None = None
