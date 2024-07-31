@@ -28,6 +28,7 @@ class Scenes(Base):
     story = relationship("Stories", back_populates="scenes")
 
 
+
 def generate_slug(target, value, oldvalue, initiator):
     if value and (not target.slug or value != oldvalue):
         target.slug = f"{slugify(value, max_length=30)}-{int(time() * 1000)}"

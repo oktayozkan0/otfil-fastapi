@@ -11,9 +11,9 @@ from stories.schemas import (SceneCreateRequest, SceneCreateResponse,
 from stories.service import StoryService
 
 
-router = APIRouter(tags=["Stories"], prefix="/stories")
+router = APIRouter(prefix="/stories")
 
-@router.post("", response_model=StoryCreateResponseModel)
+@router.post("", response_model=StoryCreateResponseModel, tags=["Story"])
 async def create_story(
     story: StoryCreateModel,
     service: StoryService = Depends(StoryService),
@@ -21,20 +21,20 @@ async def create_story(
 ):
     return await service.create_story(payload=story, user=user)
 
-@router.get("")
+@router.get("", tags=["Story"])
 async def list_stories(
     service: StoryService = Depends(StoryService)
 ) -> LimitOffsetPage[StoryGetModel]:
     return await service.list_stories()
 
-@router.get("/{slug}", response_model=StoryCreateResponseModel)
+@router.get("/{slug}", response_model=StoryCreateResponseModel, tags=["Story"])
 async def get_story(
     slug: str,
     service: StoryService = Depends(StoryService)
 ):
     return await service.get_story_by_slug(slug)
 
-@router.patch("/{slug}", response_model=StoryUpdateResponseModel)
+@router.patch("/{slug}", response_model=StoryUpdateResponseModel, tags=["Story"])
 async def update_story(
     slug: str,
     update_data: StoryUpdateModel,
@@ -47,7 +47,7 @@ async def update_story(
         user=user
     )
 
-@router.delete("/{slug}", status_code=status.HTTP_204_NO_CONTENT)
+@router.delete("/{slug}", status_code=status.HTTP_204_NO_CONTENT, tags=["Story"])
 async def delete_story(
     slug: str,
     service: StoryService = Depends(StoryService),
@@ -55,7 +55,7 @@ async def delete_story(
 ):
     return await service.delete_story_by_slug(slug=slug, user=user)
 
-@router.post("/{slug}/scenes", response_model=SceneCreateResponse)
+@router.post("/{slug}/scenes", response_model=SceneCreateResponse, tags=["Scene"])
 async def create_scene(
     payload: SceneCreateRequest,
     service: StoryService = Depends(StoryService),
@@ -64,7 +64,7 @@ async def create_scene(
 ):
     return await service.create_scene(story=story, payload=payload, user=user)
 
-@router.get("/{slug}/scenes/{scene_slug}")
+@router.get("/{slug}/scenes/{scene_slug}", tags=["Scene"])
 async def get_scene(
     scene_slug: str,
     service: StoryService = Depends(StoryService),
@@ -72,7 +72,7 @@ async def get_scene(
 ):
     return await service.get_scene_by_slug(scene_slug=scene_slug, story=story)
 
-@router.patch("/{slug}/scenes/{scene_slug}", response_model=SceneUpdateResponse)
+@router.patch("/{slug}/scenes/{scene_slug}", response_model=SceneUpdateResponse, tags=["Scene"])
 async def update_scene(
     scene_slug: str,
     payload: SceneUpdateRequest,
@@ -87,7 +87,7 @@ async def update_scene(
         user=user
     )
 
-@router.delete("/{slug}/scenes/{scene_slug}")
+@router.delete("/{slug}/scenes/{scene_slug}", tags=["Scene"])
 async def delete_scene(
     scene_slug: str,
     service: StoryService = Depends(StoryService),
