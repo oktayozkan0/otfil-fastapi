@@ -2,12 +2,12 @@ from auth.dependencies import get_current_user
 from auth.schemas import UserSystem
 from core.pagination import LimitOffsetPage
 from fastapi import APIRouter, Depends, status
-from stories.dependencies import get_story_dep
+from stories.dependencies import get_story_dep, get_scene_dep
 from stories.schemas import (SceneCreateRequest, SceneCreateResponse,
                              StoryCreateModel, StoryCreateResponseModel,
                              StoryGetModel, StoryInternal, StoryUpdateModel,
                              StoryUpdateResponseModel, SceneUpdateRequest,
-                             SceneUpdateResponse)
+                             SceneUpdateResponse,SceneInternal, ChoiceCreateRequest)
 from stories.service import StoryService
 
 
@@ -95,3 +95,13 @@ async def delete_scene(
     user: UserSystem = Depends(get_current_user)
 ):
     return await service.delete_scene(scene_slug=scene_slug,story=story,user=user)
+
+@router.post("/{slug}/scenes/{scene_slug}/choices", tags=["Choices"])
+async def create_choice(
+    payload: ChoiceCreateRequest,
+    service: StoryService = Depends(StoryService),
+    story: StoryInternal = Depends(get_story_dep),
+    scene: SceneInternal = Depends(get_scene_dep),
+    user: UserSystem = Depends(get_current_user)
+):
+    return await service.create_choice(payload=payload, story=story, scene=scene, user=user)

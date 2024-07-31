@@ -58,3 +58,17 @@ class SceneUpdateResponse(BaseModel):
     title: str
     x: float
     y: float
+
+class SceneInternal(BaseModel):
+    id: int
+    text: str
+    title: str
+    x: float
+    y: float
+    is_active: bool
+    slug: str
+    story_id: int
+
+class ChoiceCreateRequest(BaseModel):
+    text: str
+    next_scene_slug: str

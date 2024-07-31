@@ -3,7 +3,7 @@ from slugify import slugify
 
 from core.models import Base
 from sqlalchemy import (Boolean, Column, Float, ForeignKey, Integer, String,
-                        event)
+                        event, UniqueConstraint)
 from sqlalchemy.orm import relationship
 
 
@@ -27,7 +27,14 @@ class Scenes(Base):
 
     story = relationship("Stories", back_populates="scenes")
 
-
+class Choices(Base):
+    __table_args__ = (
+        UniqueConstraint("scene_id", "next_scene_id"),
+    )
+    text = Column(String(100), nullable=False)
+    scene_id = Column(Integer, ForeignKey("scenes.id"), name="scene_id")
+    next_scene_id = Column(Integer, ForeignKey("scenes.id"), name="next_scene_id")
+    is_active = Column(Boolean, default=True)
 
 def generate_slug(target, value, oldvalue, initiator):
     if value and (not target.slug or value != oldvalue):

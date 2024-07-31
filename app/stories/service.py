@@ -6,8 +6,10 @@ from core.services import BaseService
 from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy import select, update
 from sqlalchemy.orm import load_only
-from stories.models import Scenes, Stories
-from stories.schemas import SceneCreateRequest, StoryCreateModel, StoryInternal, SceneUpdateRequest
+from sqlalchemy.exc import IntegrityError
+from stories.models import Scenes, Stories, Choices
+from stories.schemas import SceneCreateRequest, StoryCreateModel, StoryInternal, SceneUpdateRequest, ChoiceCreateRequest, SceneInternal
+from stories.exceptions import UniqueConstraintException
 
 
 class StoryService(BaseService):
@@ -170,3 +172,23 @@ class StoryService(BaseService):
 
         await self.db.execute(del_stmt)
         await self.db.commit()
+
+    async def create_choice(self, payload: ChoiceCreateRequest, story: StoryInternal, scene: SceneInternal, user: UserSystem):
+        if story.owner_id != user.id:
+            raise NotFoundException(detail=f"Slug {story.slug} not found")
+        if scene.story_id != story.id:
+            raise NotFoundException(detail=f"Slug {scene.slug} not found")
+
+        get_next_scene = select(Scenes).where(Scenes.slug==payload.next_scene_slug)
+        results = await self.db.execute(get_next_scene)
+        instance = results.scalar_one_or_none()
+        if not instance:
+            raise NotFoundException(detail=f"Slug {payload.next_scene_slug} not found")
+
+        data = Choices(**payload.model_dump(exclude={"next_scene_slug"}), scene_id=scene.id, next_scene_id=instance.id)
+        self.db.add(data)
+        try:
+            await self.db.commit()
+        except IntegrityError:
+            raise UniqueConstraintException
+        return data
