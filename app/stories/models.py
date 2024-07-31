@@ -1,3 +1,6 @@
+from time import time
+from slugify import slugify
+
 from core.models import Base
 from sqlalchemy import (Boolean, Column, Float, ForeignKey, Integer, String,
                         event)
@@ -24,5 +27,11 @@ class Scenes(Base):
 
     story = relationship("Stories", back_populates="scenes")
 
-event.listen(Stories.title, "set", Stories.generate_slug, retval=False)
-event.listen(Scenes.title, "set", Scenes.generate_slug, retval=False)
+
+def generate_slug(target, value, oldvalue, initiator):
+    if value and (not target.slug or value != oldvalue):
+        target.slug = f"{slugify(value, max_length=30)}-{int(time() * 1000)}"
+
+
+event.listen(Stories.title, "set", generate_slug, retval=False)
+event.listen(Scenes.title, "set", generate_slug, retval=False)

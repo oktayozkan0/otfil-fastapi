@@ -1,6 +1,7 @@
 from core.config import get_app_settings
 from redis.asyncio import Redis
 
+
 settings = get_app_settings()
 
 redis_conn = Redis.from_url(settings.redis_url.unicode_string())

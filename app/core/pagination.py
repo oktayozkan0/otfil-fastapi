@@ -5,6 +5,7 @@ from fastapi_pagination.limit_offset import LimitOffsetPage as LimitOffsetPage
 from fastapi_pagination.limit_offset import \
     LimitOffsetParams as BaseLimitOffsetParams
 
+
 T = TypeVar("T")
 
 class LimitOffsetParams(BaseLimitOffsetParams):

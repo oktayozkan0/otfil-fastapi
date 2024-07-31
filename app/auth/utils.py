@@ -5,6 +5,7 @@ from core.config import get_app_settings
 from jose import jwt
 from passlib.context import CryptContext
 
+
 settings = get_app_settings()
 
 ACCESS_TOKEN_EXPIRE_MINUTES = settings.access_token_expire_minutes

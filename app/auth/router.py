@@ -4,6 +4,7 @@ from auth.service import AuthService
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
 
+
 router = APIRouter(prefix="/auth")
 
 @router.post("/signup")

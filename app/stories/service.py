@@ -7,7 +7,7 @@ from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy import select, update
 from sqlalchemy.orm import load_only
 from stories.models import Scenes, Stories
-from stories.schemas import SceneCreateRequest, StoryCreateModel, StoryInternal
+from stories.schemas import SceneCreateRequest, StoryCreateModel, StoryInternal, SceneUpdateRequest
 
 
 class StoryService(BaseService):
@@ -93,3 +93,80 @@ class StoryService(BaseService):
         self.db.add(data)
         await self.db.commit()
         return data
+
+    async def get_scene_by_slug(
+            self,
+            scene_slug: str,
+            story: StoryInternal
+    ):
+        stmt = select(Scenes).where(
+            Scenes.slug==scene_slug,
+            Scenes.story_id==story.id,
+            Scenes.is_active==True
+        )
+        result = await self.db.execute(stmt)
+        instance = result.scalar_one_or_none()
+        if not instance:
+            raise NotFoundException(detail=f"Slug {scene_slug} not found")
+        return instance
+
+    async def update_scene_by_slug(
+            self,
+            scene_slug: str,
+            payload: SceneUpdateRequest,
+            story: StoryInternal,
+            user: UserSystem
+    ):
+        if story.owner_id != user.id:
+            raise NotFoundException(detail=f"Slug {story.slug} not found")
+
+        stmt = select(Stories).where(
+            Scenes.slug==scene_slug,
+            Scenes.story_id==story.id,
+            Scenes.is_active==True
+        )
+        result = await self.db.execute(stmt)
+        instance = result.scalar_one_or_none()
+        if not instance:
+            raise NotFoundException(detail=f"Slug {story.slug} not found")
+
+        update_stmt = update(Scenes).where(
+            Scenes.slug==scene_slug,
+            Scenes.story_id==story.id
+        ).values(**payload.model_dump(exclude_none=True)).returning(Scenes).options(
+            load_only(Scenes.text, Scenes.title, Scenes.x, Scenes.y)
+        )
+
+        update_scene = await self.db.execute(update_stmt)
+        await self.db.commit()
+        instance = update_scene.scalar_one_or_none()
+        return instance or {}
+
+    async def delete_scene(
+            self,
+            scene_slug: str,
+            story: StoryInternal,
+            user: UserSystem
+    ):
+        if story.owner_id != user.id:
+            raise NotFoundException(detail=f"Slug {story.slug} not found")
+
+        stmt = select(Scenes).where(
+            Scenes.slug==scene_slug,
+            Scenes.story_id==story.id,
+            Scenes.is_active==True
+        ).options(load_only(Scenes.slug,Scenes.is_active))
+        
+        result = await self.db.execute(stmt)
+        instance = result.scalar_one_or_none()
+        
+        if not instance:
+            raise NotFoundException(detail=f"Slug {story.slug} not found")
+        
+        del_stmt = update(Scenes).where(
+            Scenes.slug==scene_slug,
+            Scenes.story_id==story.id
+        ).values(is_active=False,deleted_at=datetime.now())
+
+        await self.db.execute(del_stmt)
+        await self.db.commit()

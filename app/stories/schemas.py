@@ -46,3 +46,15 @@ class SceneCreateResponse(BaseModel):
     x: float
     y: float
     is_active: bool
+
+class SceneUpdateRequest(BaseModel):
+    text: str = Field(max_length=255)
+    title: str = Field(max_length=50)
+    x: float = None
+    y: float = None
+
+class SceneUpdateResponse(BaseModel):
+    text: str
+    title: str
+    x: float
+    y: float

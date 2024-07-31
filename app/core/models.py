@@ -1,6 +1,3 @@
-from time import time
-
-from slugify import slugify
 from sqlalchemy import Column, DateTime, Integer
 from sqlalchemy.orm import as_declarative, declared_attr
 from sqlalchemy.sql import func
@@ -17,8 +14,3 @@ class Base:
     @declared_attr
     def __tablename__(self) -> str:
         return self.__name__.lower()
-
-    @staticmethod
-    def generate_slug(target, value, oldvalue, initiator):
-        if value and (not target.slug or value != oldvalue):
-            target.slug = f"{slugify(value, max_length=30)}-{int(time() * 1000)}"

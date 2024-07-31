@@ -6,8 +6,10 @@ from stories.dependencies import get_story_dep
 from stories.schemas import (SceneCreateRequest, SceneCreateResponse,
                              StoryCreateModel, StoryCreateResponseModel,
                              StoryGetModel, StoryInternal, StoryUpdateModel,
-                             StoryUpdateResponseModel)
+                             StoryUpdateResponseModel, SceneUpdateRequest,
+                             SceneUpdateResponse)
 from stories.service import StoryService
+
 
 router = APIRouter(tags=["Stories"], prefix="/stories")
 
@@ -61,3 +63,35 @@ async def create_scene(
     user: UserSystem = Depends(get_current_user)
 ):
     return await service.create_scene(story=story, payload=payload, user=user)
+
+@router.get("/{slug}/scenes/{scene_slug}")
+async def get_scene(
+    scene_slug: str,
+    service: StoryService = Depends(StoryService),
+    story: StoryInternal = Depends(get_story_dep)
+):
+    return await service.get_scene_by_slug(scene_slug=scene_slug, story=story)
+
+@router.patch("/{slug}/scenes/{scene_slug}", response_model=SceneUpdateResponse)
+async def update_scene(
+    scene_slug: str,
+    payload: SceneUpdateRequest,
+    service: StoryService = Depends(StoryService),
+    story: StoryInternal = Depends(get_story_dep),
+    user: UserSystem = Depends(get_current_user)
+):
+    return await service.update_scene_by_slug(
+        scene_slug=scene_slug,
+        payload=payload,
+        story=story,
+        user=user
+    )
+
+@router.delete("/{slug}/scenes/{scene_slug}")
+async def delete_scene(
+    scene_slug: str,
+    service: StoryService = Depends(StoryService),
+    story: StoryInternal = Depends(get_story_dep),
+    user: UserSystem = Depends(get_current_user)
+):
+    return await service.delete_scene(scene_slug=scene_slug,story=story,user=user)
