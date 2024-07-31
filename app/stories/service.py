@@ -5,7 +5,7 @@ from core.exceptions import NotFoundException
 from core.services import BaseService
 from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy import select, update
-from sqlalchemy.orm import load_only
+from sqlalchemy.orm import load_only, joinedload
 from sqlalchemy.exc import IntegrityError
 from stories.models import Scenes, Stories, Choices
 from stories.schemas import SceneCreateRequest, StoryCreateModel, StoryInternal, SceneUpdateRequest, ChoiceCreateRequest, SceneInternal
@@ -86,24 +86,25 @@ class StoryService(BaseService):
     async def create_scene(
             self,
             story: StoryInternal,
+            slug: str,
             payload: SceneCreateRequest,
             user: UserSystem
     ):
         if story.owner_id != user.id:
             raise NotFoundException(detail=f"Slug {story.slug} not found")
-        data = Scenes(**payload.model_dump(), story_id=story.id)
+        data = Scenes(**payload.model_dump(), story_slug=slug)
         self.db.add(data)
         await self.db.commit()
         return data
 
     async def get_scene_by_slug(
             self,
+            slug: str,
             scene_slug: str,
-            story: StoryInternal
     ):
         stmt = select(Scenes).where(
             Scenes.slug==scene_slug,
-            Scenes.story_id==story.id,
+            Scenes.story_slug==slug,
             Scenes.is_active==True
         )
         result = await self.db.execute(stmt)
@@ -192,3 +193,11 @@ class StoryService(BaseService):
         except IntegrityError:
             raise UniqueConstraintException
         return data
+
+    async def get_choices_of_a_scene(self, scene: SceneInternal):
+        stmt = select(Scenes).where(Scenes.id==scene.id).options(joinedload(Scenes.choices))
+        results = await self.db.execute(stmt)
+        instance = results.scalars().first()
+        if not instance:
+            return NotFoundException(detail=f"Slug {scene.slug} not found")
+        return instance.choices

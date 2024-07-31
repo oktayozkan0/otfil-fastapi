@@ -23,18 +23,21 @@ class Scenes(Base):
     y = Column(Float, default=0)
     is_active = Column(Boolean, default=True)
     slug = Column(String(50))
-    story_id = Column(Integer, ForeignKey("stories.id"))
+    story_slug = Column(String, ForeignKey("stories.slug"))
 
-    story = relationship("Stories", back_populates="scenes")
+    story = relationship("Stories", back_populates="scenes", foreign_keys=[story_slug])
+    choices = relationship("Choices", back_populates="scenes", foreign_keys="Choices.scene_id")
 
 class Choices(Base):
     __table_args__ = (
         UniqueConstraint("scene_id", "next_scene_id"),
     )
     text = Column(String(100), nullable=False)
-    scene_id = Column(Integer, ForeignKey("scenes.id"), name="scene_id")
-    next_scene_id = Column(Integer, ForeignKey("scenes.id"), name="next_scene_id")
+    scene_slug = Column(String, ForeignKey("scenes.slug"), name="scene_slug")
+    next_scene_slug = Column(String, ForeignKey("scenes.slug"), name="next_scene_slug")
     is_active = Column(Boolean, default=True)
+
+    scenes = relationship("Scenes", back_populates="choices", foreign_keys=[scene_slug])
 
 def generate_slug(target, value, oldvalue, initiator):
     if value and (not target.slug or value != oldvalue):

@@ -59,6 +59,17 @@ class SceneUpdateResponse(BaseModel):
     x: float
     y: float
 
+class ChoiceCreateRequest(BaseModel):
+    text: str
+    next_scene_slug: str
+
+class ChoiceInternal(BaseModel):
+    id: int
+    text: str
+    scene_id: int
+    next_scene_id: int
+    is_active: bool
+
 class SceneInternal(BaseModel):
     id: int
     text: str
@@ -68,7 +79,4 @@ class SceneInternal(BaseModel):
     is_active: bool
     slug: str
     story_id: int
-
-class ChoiceCreateRequest(BaseModel):
-    text: str
-    next_scene_slug: str
+    choices: ChoiceInternal | None = None
