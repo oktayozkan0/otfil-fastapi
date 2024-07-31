@@ -10,7 +10,7 @@ from sqlalchemy.orm import relationship
 class Stories(Base):
     title = Column(String(100))
     description = Column(String(500))
-    slug = Column(String(50))
+    slug = Column(String(50), unique=True)
     is_active = Column(Boolean, default=False)
     owner_id = Column(Integer, ForeignKey("users.id"))
 
@@ -22,15 +22,15 @@ class Scenes(Base):
     x = Column(Float, default=0)
     y = Column(Float, default=0)
     is_active = Column(Boolean, default=True)
-    slug = Column(String(50))
+    slug = Column(String(50), unique=True)
     story_slug = Column(String, ForeignKey("stories.slug"))
 
     story = relationship("Stories", back_populates="scenes", foreign_keys=[story_slug])
-    choices = relationship("Choices", back_populates="scenes", foreign_keys="Choices.scene_id")
+    choices = relationship("Choices", back_populates="scenes", foreign_keys="Choices.scene_slug")
 
 class Choices(Base):
     __table_args__ = (
-        UniqueConstraint("scene_id", "next_scene_id"),
+        UniqueConstraint("scene_slug", "next_scene_slug"),
     )
     text = Column(String(100), nullable=False)
     scene_slug = Column(String, ForeignKey("scenes.slug"), name="scene_slug")

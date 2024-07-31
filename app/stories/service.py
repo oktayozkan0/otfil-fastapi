@@ -85,13 +85,9 @@ class StoryService(BaseService):
 
     async def create_scene(
             self,
-            story: StoryInternal,
             slug: str,
-            payload: SceneCreateRequest,
-            user: UserSystem
+            payload: SceneCreateRequest
     ):
-        if story.owner_id != user.id:
-            raise NotFoundException(detail=f"Slug {story.slug} not found")
         data = Scenes(**payload.model_dump(), story_slug=slug)
         self.db.add(data)
         await self.db.commit()
@@ -115,27 +111,23 @@ class StoryService(BaseService):
 
     async def update_scene_by_slug(
             self,
+            slug: str,
             scene_slug: str,
-            payload: SceneUpdateRequest,
-            story: StoryInternal,
-            user: UserSystem
+            payload: SceneUpdateRequest
     ):
-        if story.owner_id != user.id:
-            raise NotFoundException(detail=f"Slug {story.slug} not found")
-
         stmt = select(Stories).where(
             Scenes.slug==scene_slug,
-            Scenes.story_id==story.id,
+            Scenes.story_slug==slug,
             Scenes.is_active==True
         )
         result = await self.db.execute(stmt)
         instance = result.scalar_one_or_none()
         if not instance:
-            raise NotFoundException(detail=f"Slug {story.slug} not found")
+            raise NotFoundException(detail=f"Slug {slug} not found")
 
         update_stmt = update(Scenes).where(
             Scenes.slug==scene_slug,
-            Scenes.story_id==story.id
+            Scenes.story_slug==slug
         ).values(**payload.model_dump(exclude_none=True)).returning(Scenes).options(
             load_only(Scenes.text, Scenes.title, Scenes.x, Scenes.y)
         )
@@ -147,16 +139,12 @@ class StoryService(BaseService):
 
     async def delete_scene(
             self,
-            scene_slug: str,
-            story: StoryInternal,
-            user: UserSystem
+            slug: str,
+            scene_slug: str
     ):
-        if story.owner_id != user.id:
-            raise NotFoundException(detail=f"Slug {story.slug} not found")
-
         stmt = select(Scenes).where(
             Scenes.slug==scene_slug,
-            Scenes.story_id==story.id,
+            Scenes.story_slug==slug,
             Scenes.is_active==True
         ).options(load_only(Scenes.slug,Scenes.is_active))
         
@@ -164,11 +152,11 @@ class StoryService(BaseService):
         instance = result.scalar_one_or_none()
         
         if not instance:
-            raise NotFoundException(detail=f"Slug {story.slug} not found")
+            raise NotFoundException(detail=f"Slug {slug} not found")
         
         del_stmt = update(Scenes).where(
             Scenes.slug==scene_slug,
-            Scenes.story_id==story.id
+            Scenes.story_slug==slug
         ).values(is_active=False,deleted_at=datetime.now())
 
         await self.db.execute(del_stmt)
