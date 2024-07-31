@@ -17,7 +17,10 @@ reusable_oauth = OAuth2PasswordBearer(
     scheme_name="JWT"
 )
 
-async def get_current_user(token: str = Depends(reusable_oauth), db: AsyncSession = Depends(get_db)):
+async def get_current_user(
+        token: str = Depends(reusable_oauth),
+        db: AsyncSession = Depends(get_db)
+):
     try:
         payload = jwt.decode(
             token=token,
