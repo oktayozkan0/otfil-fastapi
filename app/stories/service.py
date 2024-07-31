@@ -1,13 +1,13 @@
 from datetime import datetime
+
+from auth.schemas import UserSystem
+from core.exceptions import NotFoundException
+from core.services import BaseService
+from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy import select, update
 from sqlalchemy.orm import load_only
-from fastapi_pagination.ext.sqlalchemy import paginate
-
-from stories.models import Stories, Scenes
-from stories.schemas import StoryCreateModel, SceneCreateRequest, StoryInternal
-from core.services import BaseService
-from core.exceptions import NotFoundException
-from auth.schemas import UserSystem
+from stories.models import Scenes, Stories
+from stories.schemas import SceneCreateRequest, StoryCreateModel, StoryInternal
 
 
 class StoryService(BaseService):

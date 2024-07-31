@@ -1,8 +1,7 @@
-from sqlalchemy import Column, String, Boolean, Integer, event, ForeignKey, Float
-from sqlalchemy.orm import relationship
-
-
 from core.models import Base
+from sqlalchemy import (Boolean, Column, Float, ForeignKey, Integer, String,
+                        event)
+from sqlalchemy.orm import relationship
 
 
 class Stories(Base):

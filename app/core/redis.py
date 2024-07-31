@@ -1,7 +1,5 @@
-from redis.asyncio import Redis
-
 from core.config import get_app_settings
-
+from redis.asyncio import Redis
 
 settings = get_app_settings()
 

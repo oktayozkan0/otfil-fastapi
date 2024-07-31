@@ -1,8 +1,9 @@
-from fastapi_pagination.limit_offset import LimitOffsetPage as LimitOffsetPage, LimitOffsetParams as BaseLimitOffsetParams
-from fastapi_pagination.ext.sqlalchemy import paginate
-from typing import TypeVar, Generic
-from fastapi import Query
+from typing import Generic, TypeVar
 
+from fastapi import Query
+from fastapi_pagination.limit_offset import LimitOffsetPage as LimitOffsetPage
+from fastapi_pagination.limit_offset import \
+    LimitOffsetParams as BaseLimitOffsetParams
 
 T = TypeVar("T")
 

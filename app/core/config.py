@@ -1,6 +1,5 @@
-from pydantic import PostgresDsn, BaseModel, RedisDsn
 from dotenv import dotenv_values
-
+from pydantic import BaseModel, PostgresDsn, RedisDsn
 
 DEFAULTS = {
     "openapi_url": "/openapi.json",

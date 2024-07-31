@@ -1,12 +1,13 @@
-from fastapi import APIRouter, Depends, status
-
-from stories.service import StoryService
-from stories.schemas import StoryCreateResponseModel, StoryCreateModel, StoryGetModel, StoryUpdateModel, StoryUpdateResponseModel, SceneCreateRequest, StoryInternal, SceneCreateResponse
-from stories.dependencies import get_story_dep
-from core.pagination import LimitOffsetPage
-from auth.schemas import UserSystem
 from auth.dependencies import get_current_user
-
+from auth.schemas import UserSystem
+from core.pagination import LimitOffsetPage
+from fastapi import APIRouter, Depends, status
+from stories.dependencies import get_story_dep
+from stories.schemas import (SceneCreateRequest, SceneCreateResponse,
+                             StoryCreateModel, StoryCreateResponseModel,
+                             StoryGetModel, StoryInternal, StoryUpdateModel,
+                             StoryUpdateResponseModel)
+from stories.service import StoryService
 
 router = APIRouter(tags=["Stories"], prefix="/stories")
 

@@ -1,16 +1,16 @@
-from datetime import datetime, UTC
+from datetime import UTC, datetime
+
+from auth.exceptions import (InvalidCredentialsException,
+                             UnauthorizedException, UserNotFoundException)
+from auth.models import Users
+from auth.schemas import TokenPayload, UserSystem
+from auth.utils import ALGORITHM, JWT_SECRET_KEY
+from core.db import get_db
 from fastapi import Depends
 from fastapi.security import OAuth2PasswordBearer
 from jose import jwt
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-
-from auth.utils import JWT_SECRET_KEY, ALGORITHM
-from auth.schemas import TokenPayload, UserSystem
-from auth.exceptions import UnauthorizedException, InvalidCredentialsException, UserNotFoundException
-from auth.models import Users
-from core.db import get_db
-
+from sqlalchemy.ext.asyncio import AsyncSession
 
 reusable_oauth = OAuth2PasswordBearer(
     tokenUrl="/api/v1/auth/login",
@@ -29,7 +29,7 @@ async def get_current_user(token: str = Depends(reusable_oauth), db: AsyncSessio
         now = datetime.now(UTC)
         if token_timestamp < now:
             raise UnauthorizedException
-    except:
+    except Exception:
         raise InvalidCredentialsException
 
     stmt = select(Users).where(Users.email==token_data.sub)

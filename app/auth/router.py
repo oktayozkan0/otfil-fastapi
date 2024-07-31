@@ -1,10 +1,8 @@
+from auth.dependencies import get_current_user
+from auth.schemas import RefreshTokenRequest, UserSignupRequest, UserSystem
+from auth.service import AuthService
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
-
-from auth.schemas import UserSignupRequest, UserSystem, RefreshTokenRequest
-from auth.service import AuthService
-from auth.dependencies import get_current_user
-
 
 router = APIRouter(prefix="/auth")
 

@@ -1,10 +1,9 @@
-from passlib.context import CryptContext
-from datetime import datetime, timedelta, UTC
-from typing import Union, Any
-from jose import jwt
+from datetime import UTC, datetime, timedelta
+from typing import Any, Union
 
 from core.config import get_app_settings
-
+from jose import jwt
+from passlib.context import CryptContext
 
 settings = get_app_settings()
 

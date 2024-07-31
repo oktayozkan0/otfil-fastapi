@@ -1,14 +1,19 @@
-from datetime import datetime, UTC
-from fastapi.security import OAuth2PasswordRequestForm
-from sqlalchemy import select
-from jose import jwt
+from datetime import UTC, datetime
 
-from core.services import BaseService
-from core.redis import get_user_refresh_token, set_user_refresh_token
-from auth.schemas import UserSignupRequest, TokenResponse, RefreshTokenRequest, TokenPayload
+from auth.exceptions import (AlreadyExistsException,
+                             InvalidCredentialsException,
+                             UnauthorizedException)
 from auth.models import Users
-from auth.exceptions import AlreadyExistsException, InvalidCredentialsException, UnauthorizedException
-from auth.utils import get_hashed_password, verify_password, create_access_token, create_refresh_token, JWT_REFRESH_SECRET_KEY, ALGORITHM
+from auth.schemas import (RefreshTokenRequest, TokenPayload, TokenResponse,
+                          UserSignupRequest)
+from auth.utils import (ALGORITHM, JWT_REFRESH_SECRET_KEY, create_access_token,
+                        create_refresh_token, get_hashed_password,
+                        verify_password)
+from core.redis import get_user_refresh_token, set_user_refresh_token
+from core.services import BaseService
+from fastapi.security import OAuth2PasswordRequestForm
+from jose import jwt
+from sqlalchemy import select
 
 
 class AuthService(BaseService):
@@ -66,7 +71,7 @@ class AuthService(BaseService):
             now = datetime.now(UTC)
             if token_timestamp < now:
                 raise UnauthorizedException
-        except:
+        except Exception:
             raise InvalidCredentialsException
 
         db_refresh_token: bytes = await get_user_refresh_token(token_data.sub)

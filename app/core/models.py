@@ -1,9 +1,9 @@
-from sqlalchemy import Column, DateTime
-from sqlalchemy.orm import as_declarative, declared_attr
-from sqlalchemy import Integer
-from sqlalchemy.sql import func
-from slugify import slugify
 from time import time
+
+from slugify import slugify
+from sqlalchemy import Column, DateTime, Integer
+from sqlalchemy.orm import as_declarative, declared_attr
+from sqlalchemy.sql import func
 
 
 @as_declarative()

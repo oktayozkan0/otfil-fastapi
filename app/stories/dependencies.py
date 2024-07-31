@@ -1,10 +1,9 @@
-from fastapi import Path, Depends
+from core.exceptions import NotFoundException
+from core.services import get_db
+from fastapi import Depends, Path
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from stories.models import Stories
-from core.services import get_db
-from core.exceptions import NotFoundException
 
 
 async def get_story_dep(slug: str = Path(...), db: AsyncSession = Depends(get_db)):
