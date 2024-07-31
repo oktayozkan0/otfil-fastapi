@@ -1,15 +1,16 @@
 from datetime import datetime
-
-from auth.schemas import UserSystem
-from core.exceptions import NotFoundException
-from core.services import BaseService
+from fastapi import HTTPException, status
 from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy import select, update
 from sqlalchemy.orm import load_only, joinedload
 from sqlalchemy.exc import IntegrityError
+
+from auth.schemas import UserSystem
+from core.exceptions import NotFoundException
+from core.services import BaseService
 from stories.models import Scenes, Stories, Choices
-from stories.schemas import SceneCreateRequest, StoryCreateModel, StoryInternal, SceneUpdateRequest, ChoiceCreateRequest, SceneInternal
-from stories.exceptions import UniqueConstraintException
+from stories.schemas import SceneCreateRequest, StoryCreateModel, SceneUpdateRequest, ChoiceCreateRequest, SceneInternal
+from stories.exceptions import CheckSlugsException
 
 
 class StoryService(BaseService):
@@ -163,18 +164,24 @@ class StoryService(BaseService):
         await self.db.commit()
 
     async def create_choice(self, payload: ChoiceCreateRequest, scene_slug: str):
-        stmt = select(Scenes).where((Scenes.slug==payload.next_scene_slug) & (Scenes.slug==scene_slug))
+        stmt = select(Scenes).where((Scenes.slug==payload.next_scene_slug) | (Scenes.slug==scene_slug))
         results = await self.db.execute(stmt)
         instances = results.scalars().all()
         if len(instances) == 2:
-            if instances[0].""
+            if instances[0].story_slug != instances[1].story_slug:
+                raise HTTPException(
+                    status_code=status.HTTP_400_BAD_REQUEST,
+                    detail="scene_slug and next_scene_slug must belong to same story"
+                )
+        else:
+            raise CheckSlugsException
 
         data = Choices(**payload.model_dump(), scene_slug=scene_slug)
         self.db.add(data)
         try:
             await self.db.commit()
-        except IntegrityError as e:
-            raise UniqueConstraintException
+        except IntegrityError:
+            raise CheckSlugsException
         return data
 
     async def get_choices_of_a_scene(self, scene: SceneInternal):
