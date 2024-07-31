@@ -115,13 +115,13 @@ class StoryService(BaseService):
             scene_slug: str,
             payload: SceneUpdateRequest
     ):
-        stmt = select(Stories).where(
+        stmt = select(Scenes).where(
             Scenes.slug==scene_slug,
             Scenes.story_slug==slug,
             Scenes.is_active==True
         )
         result = await self.db.execute(stmt)
-        instance = result.scalar_one_or_none()
+        instance = result.scalars().all()
         if not instance:
             raise NotFoundException(detail=f"Slug {slug} not found")
 
@@ -162,23 +162,18 @@ class StoryService(BaseService):
         await self.db.execute(del_stmt)
         await self.db.commit()
 
-    async def create_choice(self, payload: ChoiceCreateRequest, story: StoryInternal, scene: SceneInternal, user: UserSystem):
-        if story.owner_id != user.id:
-            raise NotFoundException(detail=f"Slug {story.slug} not found")
-        if scene.story_id != story.id:
-            raise NotFoundException(detail=f"Slug {scene.slug} not found")
+    async def create_choice(self, payload: ChoiceCreateRequest, scene_slug: str):
+        stmt = select(Scenes).where((Scenes.slug==payload.next_scene_slug) & (Scenes.slug==scene_slug))
+        results = await self.db.execute(stmt)
+        instances = results.scalars().all()
+        if len(instances) == 2:
+            if instances[0].""
 
-        get_next_scene = select(Scenes).where(Scenes.slug==payload.next_scene_slug)
-        results = await self.db.execute(get_next_scene)
-        instance = results.scalar_one_or_none()
-        if not instance:
-            raise NotFoundException(detail=f"Slug {payload.next_scene_slug} not found")
-
-        data = Choices(**payload.model_dump(exclude={"next_scene_slug"}), scene_id=scene.id, next_scene_id=instance.id)
+        data = Choices(**payload.model_dump(), scene_slug=scene_slug)
         self.db.add(data)
         try:
             await self.db.commit()
-        except IntegrityError:
+        except IntegrityError as e:
             raise UniqueConstraintException
         return data
 

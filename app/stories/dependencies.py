@@ -14,7 +14,7 @@ async def must_story_owner(slug: str = Path(...), user: UserSystem = Depends(get
     results = await db.execute(stmt)
     instance = results.scalar_one_or_none()
     if not instance:
-        raise NotFoundException(detail=f"Slug {slug} not found")
+        raise NotFoundException(detail=f"You are not the owner of {slug}")
 
 async def get_story_dep(slug: str = Path(...), db: AsyncSession = Depends(get_db)):
     stmt = select(Stories).where(Stories.slug==slug)

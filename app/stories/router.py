@@ -65,43 +65,40 @@ async def create_scene(
 
 @router.get("/{slug}/scenes/{scene_slug}", tags=["Scene"])
 async def get_scene(
+    slug: str,
     scene_slug: str,
-    service: StoryService = Depends(StoryService),
-    story: StoryInternal = Depends(get_story_dep)
+    service: StoryService = Depends(StoryService)
 ):
-    return await service.get_scene_by_slug(scene_slug=scene_slug, story=story)
+    return await service.get_scene_by_slug(scene_slug=scene_slug, slug=slug)
 
 @router.patch("/{slug}/scenes/{scene_slug}", response_model=SceneUpdateResponse, tags=["Scene"], dependencies=[Depends(must_story_owner)])
 async def update_scene(
+    slug: str,
     scene_slug: str,
     payload: SceneUpdateRequest,
-    service: StoryService = Depends(StoryService),
-    story: StoryInternal = Depends(get_story_dep),
-    user: UserSystem = Depends(get_current_user)
+    service: StoryService = Depends(StoryService)
 ):
     return await service.update_scene_by_slug(
+        slug=slug,
         scene_slug=scene_slug,
-        payload=payload,
-        story=story,
-        user=user
+        payload=payload
     )
 
 @router.delete("/{slug}/scenes/{scene_slug}", tags=["Scene"], dependencies=[Depends(must_story_owner)])
 async def delete_scene(
+    slug: str,
     scene_slug: str,
-    service: StoryService = Depends(StoryService),
-    story: StoryInternal = Depends(get_story_dep)
+    service: StoryService = Depends(StoryService)
 ):
-    return await service.delete_scene(scene_slug=scene_slug,story=story)
+    return await service.delete_scene(scene_slug=scene_slug, slug=slug)
 
 @router.post("/{slug}/scenes/{scene_slug}/choices", tags=["Choices"], dependencies=[Depends(must_story_owner)])
 async def create_choice(
+    scene_slug: str,
     payload: ChoiceCreateRequest,
-    service: StoryService = Depends(StoryService),
-    story: StoryInternal = Depends(get_story_dep),
-    scene: SceneInternal = Depends(get_scene_dep)
+    service: StoryService = Depends(StoryService)
 ):
-    return await service.create_choice(payload=payload, story=story, scene=scene)
+    return await service.create_choice(payload=payload, scene_slug=scene_slug)
 
 @router.get("/{slug}/scenes/{scene_slug}/choices", tags=["Choices"])
 async def get_choices_of_a_scene(
