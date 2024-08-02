@@ -189,5 +189,22 @@ class StoryService(BaseService):
         results = await self.db.execute(stmt)
         instance = results.scalars().first()
         if not instance:
-            return NotFoundException(detail=f"Slug {scene.slug} not found")
+            raise NotFoundException(detail=f"Slug {scene.slug} not found")
         return instance.choices
+
+    async def delete_choice_by_id(self, choice_id: int):
+        stmt = select(Choices).where(Choices.id==choice_id)
+        result = await self.db.execute(stmt)
+        instance = result.scalar_one_or_none()
+        if not instance:
+            raise NotFoundException(detail=f"ID {choice_id} not found")
+        instance.is_active=False
+        instance.deleted_at=datetime.now()
+        await self.db.commit()
+
+    async def update_choice_by_id(self, choice_id: int):
+        stmt = select(Choices).where(Choices.id==choice_id)
+        result = await self.db.execute(stmt)
+        instance = result.scalar_one_or_none()
+        if not instance:
+            raise NotFoundException(detail=f"ID {choice_id} not found")

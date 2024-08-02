@@ -2,7 +2,7 @@ from auth.dependencies import get_current_user
 from auth.schemas import UserSystem
 from core.exceptions import NotFoundException
 from core.services import get_db
-from fastapi import Depends, Path
+from fastapi import Depends, Path, Body
 from sqlalchemy import select
 from sqlalchemy.orm import load_only
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -31,3 +31,6 @@ async def get_scene_dep(slug: str = Path(...), scene_slug: str = Path(...), db: 
     if not instance:
         raise NotFoundException(detail=f"Slug {scene_slug} not found")
     return instance
+
+async def check_scene_slugs_of_choice(scene_slug: str = Path(...)):
+    pass

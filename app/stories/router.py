@@ -106,3 +106,30 @@ async def get_choices_of_a_scene(
     scene: SceneInternal = Depends(get_scene_dep)
 ):
     return await service.get_choices_of_a_scene(scene=scene)
+
+@router.delete(
+        "/{slug}/scenes/{scene_slug}/choices/{choice_id}",
+        tags=["Choices"],
+        dependencies=[Depends(must_story_owner)],
+        status_code=status.HTTP_204_NO_CONTENT
+)
+async def delete_choice_by_id(
+    slug: str,
+    scene_slug: str,
+    choice_id: int,
+    service: StoryService = Depends(StoryService)
+):
+    return await service.delete_choice_by_id(choice_id=choice_id)
+
+@router.patch(
+        "/{slug}/scenes/{scene_slug}/choices/{choice_id}",
+        tags=["Choices"],
+        dependencies=[Depends(must_story_owner)]
+)
+async def delete_choice_by_id(
+    slug: str,
+    scene_slug: str,
+    choice_id: int,
+    service: StoryService = Depends(StoryService)
+):
+    return await service.delete_choice_by_id(choice_id=choice_id)
