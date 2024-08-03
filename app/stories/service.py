@@ -9,7 +9,7 @@ from auth.schemas import UserSystem
 from core.exceptions import NotFoundException
 from core.services import BaseService
 from stories.models import Scenes, Stories, Choices
-from stories.schemas import SceneCreateRequest, StoryCreateModel, SceneUpdateRequest, ChoiceCreateRequest, SceneInternal
+from stories.schemas import SceneCreateRequest, StoryCreateModel, SceneUpdateRequest, ChoiceCreateRequest, SceneInternal, ChoiceUpdate
 from stories.exceptions import CheckSlugsException
 
 
@@ -192,19 +192,14 @@ class StoryService(BaseService):
             raise NotFoundException(detail=f"Slug {scene.slug} not found")
         return instance.choices
 
-    async def delete_choice_by_id(self, choice_id: int):
-        stmt = select(Choices).where(Choices.id==choice_id)
-        result = await self.db.execute(stmt)
-        instance = result.scalar_one_or_none()
-        if not instance:
-            raise NotFoundException(detail=f"ID {choice_id} not found")
-        instance.is_active=False
-        instance.deleted_at=datetime.now()
+    async def delete_choice_by_id(self, choice: Choices):
+        choice.is_active = False
+        choice.deleted_at = datetime.now()
         await self.db.commit()
 
-    async def update_choice_by_id(self, choice_id: int):
-        stmt = select(Choices).where(Choices.id==choice_id)
+    async def update_choice(self, payload: ChoiceUpdate, choice: Choices):
+        stmt = update(Choices).where(Choices.id==choice.id).values(**payload.model_dump(exclude_none=True)).returning(Choices).options(load_only(Choices.scene_slug, Choices.next_scene_slug, Choices.text))
         result = await self.db.execute(stmt)
+        await self.db.commit()
         instance = result.scalar_one_or_none()
-        if not instance:
-            raise NotFoundException(detail=f"ID {choice_id} not found")
+        return instance or {}

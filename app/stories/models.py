@@ -14,7 +14,7 @@ class Stories(Base):
     is_active = Column(Boolean, default=False)
     owner_id = Column(Integer, ForeignKey("users.id"))
 
-    scenes = relationship("Scenes", back_populates="story")
+    scenes = relationship("Scenes", back_populates="story", foreign_keys="Scenes.story_slug")
 
 class Scenes(Base):
     text = Column(String(255), nullable=False)

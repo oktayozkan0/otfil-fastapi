@@ -63,6 +63,11 @@ class ChoiceCreateRequest(BaseModel):
     text: str
     next_scene_slug: str
 
+class ChoiceUpdate(BaseModel):
+    text: str | None = None
+    scene_slug: str | None = None
+    next_scene_slug: str | None = None
+
 class ChoiceInternal(BaseModel):
     id: int
     text: str

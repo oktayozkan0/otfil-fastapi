@@ -2,12 +2,13 @@ from auth.dependencies import get_current_user
 from auth.schemas import UserSystem
 from core.pagination import LimitOffsetPage
 from fastapi import APIRouter, Depends, status
-from stories.dependencies import get_story_dep, get_scene_dep, must_story_owner
+from stories.dependencies import get_scene_dep, must_story_owner, must_scene_belongs_to_choice_or_exist
 from stories.schemas import (SceneCreateRequest, SceneCreateResponse,
                              StoryCreateModel, StoryCreateResponseModel,
-                             StoryGetModel, StoryInternal, StoryUpdateModel,
+                             StoryGetModel, StoryUpdateModel,
                              StoryUpdateResponseModel, SceneUpdateRequest,
-                             SceneUpdateResponse,SceneInternal, ChoiceCreateRequest)
+                             SceneUpdateResponse,SceneInternal, ChoiceCreateRequest,
+                             ChoiceInternal, ChoiceUpdate)
 from stories.service import StoryService
 
 
@@ -114,22 +115,19 @@ async def get_choices_of_a_scene(
         status_code=status.HTTP_204_NO_CONTENT
 )
 async def delete_choice_by_id(
-    slug: str,
-    scene_slug: str,
-    choice_id: int,
-    service: StoryService = Depends(StoryService)
+    service: StoryService = Depends(StoryService),
+    choice: ChoiceInternal = Depends(must_scene_belongs_to_choice_or_exist)
 ):
-    return await service.delete_choice_by_id(choice_id=choice_id)
+    return await service.delete_choice_by_id(choice=choice)
 
 @router.patch(
         "/{slug}/scenes/{scene_slug}/choices/{choice_id}",
         tags=["Choices"],
         dependencies=[Depends(must_story_owner)]
 )
-async def delete_choice_by_id(
-    slug: str,
-    scene_slug: str,
-    choice_id: int,
-    service: StoryService = Depends(StoryService)
+async def update_choice(
+    payload: ChoiceUpdate,
+    service: StoryService = Depends(StoryService),
+    choice: ChoiceInternal = Depends(must_scene_belongs_to_choice_or_exist),
 ):
-    return await service.delete_choice_by_id(choice_id=choice_id)
+    return await service.update_choice(payload=payload, choice=choice)
