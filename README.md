@@ -10,7 +10,7 @@ alembic revision --autogenerate -m "first migration"
 alembic upgrade head
 uvicorn app.main:app
 ```
-and then, app will be available at http://127.0.0.1:8000/
+and then, app will be available at http://127.0.0.1:8000/\
 Docs url:\
 `/docs`\
 \
