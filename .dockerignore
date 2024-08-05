@@ -1,0 +1,9 @@
+.ruff_cache
+*/env
+.env.example
+.gitattributes
+.gitignore
+docker-compose.yml
+Dockerfile
+README.md
+ruff.toml
