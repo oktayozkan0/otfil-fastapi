@@ -9,4 +9,6 @@ router = APIRouter()
 
 @router.get("/health", response_model=HealthCheckModel)
 def health_check():
-    return {"status": "active"}
+    return HealthCheckModel(
+        status="active"
+    )
