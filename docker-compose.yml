@@ -10,7 +10,7 @@ services:
     environment:
       POSTGRES_DB: otfil
       POSTGRES_USER: otfiluser
-      POSTGRES_PASSWORD: otfilpass
+      POSTGRES_PASSWORD: otfil
   redis:
     image: redis:6.2-alpine
     restart: always
