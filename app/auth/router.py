@@ -30,4 +30,5 @@ async def refresh_access_token(
     refresh_token: RefreshTokenRequest,
     service: AuthService = Depends(AuthService)
 ):
+    "send your refresh token and it gives you a new access token"
     return await service.refresh_access_token(token=refresh_token)
