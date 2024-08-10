@@ -19,7 +19,12 @@ async def must_story_owner(slug: str = Path(...), user: UserSystem = Depends(get
         raise NotFoundException(detail=f"You are not the owner of {slug}")
 
 
-async def must_scene_belongs_to_choice_or_exist(slug: str = Path(...), scene_slug: str = Path(...), choice_id: int = Path(...), db: AsyncSession = Depends(get_db)):
+async def must_scene_belongs_to_choice_or_exist(
+    slug: str = Path(...),
+    scene_slug: str = Path(...),
+    choice_id: int = Path(...),
+    db: AsyncSession = Depends(get_db)        
+):
     stmt = select(Stories).where(Stories.slug==slug).options(
         joinedload(Stories.scenes.and_(Scenes.slug==scene_slug,Scenes.story_slug==slug), innerjoin=True).options(
             joinedload(Scenes.choices.and_(Choices.scene_slug==scene_slug,Choices.id==choice_id), innerjoin=True)

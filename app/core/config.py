@@ -7,7 +7,7 @@ DEFAULTS = {
     "docs_url": "/docs",
     "redoc_url": "/redoc",
     "title": "OTFIL API",
-    "summary": "OTFIL API Swagger UI"
+    "summary": "OTFIL API"
 }
 
 class AppSettings(BaseModel):
