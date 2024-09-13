@@ -2,10 +2,11 @@ from datetime import UTC, datetime
 
 from auth.exceptions import (AlreadyExistsException,
                              InvalidCredentialsException,
-                             UnauthorizedException)
+                             UnauthorizedException,
+                             WrongPasswordException)
 from auth.models import Users
 from auth.schemas import (RefreshTokenRequest, TokenPayload, TokenResponse,
-                          UserSignupRequest)
+                          UserSignupRequest, ChangePasswordRequest, UserSystem)
 from auth.utils import (ALGORITHM, JWT_REFRESH_SECRET_KEY, create_access_token,
                         create_refresh_token, get_hashed_password,
                         verify_password)
@@ -13,7 +14,7 @@ from core.redis import get_user_refresh_token, set_user_refresh_token
 from core.services import BaseService
 from fastapi.security import OAuth2PasswordRequestForm
 from jose import jwt
-from sqlalchemy import select
+from sqlalchemy import select, update
 
 
 class AuthService(BaseService):
@@ -83,3 +84,11 @@ class AuthService(BaseService):
             access_token=new_access_token,
             refresh_token=db_refresh_token
         )
+
+    async def change_password(self, password: ChangePasswordRequest, user: UserSystem):
+        if not verify_password(password.old_password, user.password):
+            raise WrongPasswordException
+        hashed_password = get_hashed_password(password.new_password)
+        stmt = update(Users).where(Users.id==user.id).values(password=hashed_password)
+        await self.db.execute(stmt)
+        await self.db.commit()

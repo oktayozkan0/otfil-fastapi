@@ -1,5 +1,5 @@
 from auth.dependencies import get_current_user
-from auth.schemas import RefreshTokenRequest, UserSignupRequest, UserSystem
+from auth.schemas import RefreshTokenRequest, UserSignupRequest, UserSystem, ChangePasswordRequest
 from auth.service import AuthService
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
@@ -32,3 +32,11 @@ async def refresh_access_token(
 ):
     "send your refresh token and it gives you a new access token"
     return await service.refresh_access_token(token=refresh_token)
+
+@router.post("/change-password")
+async def change_password(
+    password: ChangePasswordRequest,
+    user: UserSystem = Depends(get_current_user),
+    service: AuthService = Depends(AuthService)
+):
+    return await service.change_password(password=password, user=user)
