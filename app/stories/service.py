@@ -15,7 +15,7 @@ from stories.exceptions import CheckSlugsException
 
 class StoryService(BaseService):
     async def create_story(self, payload: StoryCreateModel, user: UserSystem):
-        data = Stories(**payload.model_dump(), owner_id=user.id)
+        data = Stories(**payload.model_dump(), owner_id=user.id, is_active=True)
         self.db.add(data)
         await self.db.commit()
         return data
