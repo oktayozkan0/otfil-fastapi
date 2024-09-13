@@ -1,16 +1,27 @@
 version: '3.9'
 
+name: 'otfilapiproject'
+
 services:
   postgres:
+    container_name: postgresdb
     image: postgres:14-alpine
     ports:
       - 5432:5432
     volumes:
-      - ~/apps/postgres:/var/lib/postgresql/data
+      - otfilapi:/var/lib/postgresql/data
+    networks:
+      - net
     environment:
-      POSTGRES_DB: otfil
+      POSTGRES_DB: otfilapi
       POSTGRES_USER: otfiluser
       POSTGRES_PASSWORD: otfil
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "otfiluser"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  
   redis:
     image: redis:6.2-alpine
     restart: always
@@ -19,18 +30,27 @@ services:
     command: redis-server --save 60 1 --loglevel warning
     volumes: 
       - ./data:/data
+    networks:
+      - net
+
   otfil:
+    depends_on:
+      - postgres
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - "8000:8000"
-    command:
-      [
-        "uvicorn",
-        "--host",
-        "0.0.0.0",
-        "--port",
-        "8000",
-        "app.main:app"
-      ]
+    networks:
+      - net
+    command: >
+      bash -c "alembic upgrade head || echo 'Alembic upgrade failed' && uvicorn --host 0.0.0.0 --port 8000 app.main:app"
+
+
+volumes:
+  otfilapi:
+    name: otfilapi
+
+networks:
+  net:
+    name: shared-net
