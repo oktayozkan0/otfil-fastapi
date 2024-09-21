@@ -9,7 +9,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from stories.models import Stories, Scenes, Choices
 
 
-async def must_story_owner(slug: str = Path(...), user: UserSystem = Depends(get_current_user), db: AsyncSession = Depends(get_db)):
+async def must_story_owner(
+        slug: str = Path(...),
+        user: UserSystem = Depends(get_current_user),
+        db: AsyncSession = Depends(get_db)
+):
     stmt = select(Stories).where(Stories.slug==slug).options(load_only(Stories.id, Stories.owner_id))
     results = await db.execute(stmt)
     instance = results.scalar_one_or_none()
