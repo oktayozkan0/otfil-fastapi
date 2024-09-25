@@ -203,7 +203,13 @@ class StoryService(BaseService):
         await self.db.commit()
 
     async def update_choice(self, payload: ChoiceUpdate, choice: Choices):
-        stmt = update(Choices).where(Choices.id==choice.id).values(**payload.model_dump(exclude_none=True)).returning(Choices).options(load_only(Choices.scene_slug, Choices.next_scene_slug, Choices.text))
+        stmt = update(Choices).where(
+            Choices.id==choice.id
+        ).values(
+            **payload.model_dump(exclude_none=True)
+        ).returning(Choices).options(
+            load_only(Choices.scene_slug, Choices.next_scene_slug, Choices.text)
+        )
         result = await self.db.execute(stmt)
         await self.db.commit()
         instance = result.scalar_one_or_none()

@@ -1,5 +1,7 @@
 from pydantic import BaseModel, Field
 
+from stories.constants import SceneTypes
+
 
 class StoryCreateModel(BaseModel):
     title: str = Field(max_length=100)
@@ -39,12 +41,14 @@ class SceneGet(BaseModel):
     title: str
     x: float
     y: float
+    type: SceneTypes
 
 class SceneCreateRequest(BaseModel):
     text: str
     title: str
     x: float
     y: float
+    type: SceneTypes = SceneTypes.DEFAULT
 
 class SceneCreateResponse(BaseModel):
     text: str
@@ -52,6 +56,7 @@ class SceneCreateResponse(BaseModel):
     title: str
     x: float
     y: float
+    type: SceneTypes
     is_active: bool
 
 class SceneUpdateRequest(BaseModel):
@@ -59,12 +64,14 @@ class SceneUpdateRequest(BaseModel):
     title: str = Field(max_length=50)
     x: float = None
     y: float = None
+    type: SceneTypes = SceneTypes.DEFAULT
 
 class SceneUpdateResponse(BaseModel):
     text: str
     title: str
     x: float
     y: float
+    type: SceneTypes
 
 class ChoiceCreateRequest(BaseModel):
     text: str

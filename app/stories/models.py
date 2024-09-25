@@ -3,8 +3,9 @@ from slugify import slugify
 
 from core.models import Base
 from sqlalchemy import (Boolean, Column, Float, ForeignKey, Integer, String,
-                        event, UniqueConstraint)
+                        event, UniqueConstraint, Enum)
 from sqlalchemy.orm import relationship
+from stories.constants import SceneTypes
 
 
 class Stories(Base):
@@ -21,6 +22,7 @@ class Scenes(Base):
     title = Column(String(50), nullable=True, default=None)
     x = Column(Float, default=0)
     y = Column(Float, default=0)
+    type = Column(Enum(SceneTypes), nullable=True, default=SceneTypes.DEFAULT)
     is_active = Column(Boolean, default=True)
     slug = Column(String(50), unique=True)
     story_slug = Column(String, ForeignKey("stories.slug"))
