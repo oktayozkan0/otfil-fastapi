@@ -1,5 +1,6 @@
 from dotenv import dotenv_values
-from pydantic import BaseModel, PostgresDsn, RedisDsn
+from functools import lru_cache
+from pydantic import BaseModel, PostgresDsn, RedisDsn, AnyUrl
 
 
 DEFAULTS = {
@@ -12,7 +13,7 @@ DEFAULTS = {
 
 class AppSettings(BaseModel):
     debug: bool = True
-    database_url: PostgresDsn
+    database_url: PostgresDsn | AnyUrl
     openapi_url: str = None
     docs_url: str = None
     redoc_url: str = None
@@ -24,6 +25,7 @@ class AppSettings(BaseModel):
     refresh_token_expire_minutes: int = 60 * 24 * 7
     redis_url: RedisDsn
 
+@lru_cache
 def get_app_settings() -> AppSettings:
     config = {k.lower():v for k,v in dotenv_values().items()}
     settings = AppSettings(**config)

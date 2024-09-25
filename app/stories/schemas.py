@@ -33,6 +33,13 @@ class StoryInternal(BaseModel):
     is_active: bool
     owner_id: int
 
+class SceneGet(BaseModel):
+    text: str
+    slug: str
+    title: str
+    x: float
+    y: float
+
 class SceneCreateRequest(BaseModel):
     text: str
     title: str

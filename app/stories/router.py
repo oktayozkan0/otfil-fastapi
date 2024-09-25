@@ -8,7 +8,7 @@ from stories.schemas import (SceneCreateRequest, SceneCreateResponse,
                              StoryGetModel, StoryUpdateModel,
                              StoryUpdateResponseModel, SceneUpdateRequest,
                              SceneUpdateResponse,SceneInternal, ChoiceCreateRequest,
-                             ChoiceInternal, ChoiceUpdate)
+                             ChoiceInternal, ChoiceUpdate, SceneGet)
 from stories.service import StoryService
 
 
@@ -22,7 +22,7 @@ async def create_story(
 ):
     return await service.create_story(payload=story, user=user)
 
-@router.get("", tags=["Story"])
+@router.get("", tags=["Story"], name="stories:list-stories")
 async def list_stories(
     service: StoryService = Depends(StoryService)
 ) -> LimitOffsetPage[StoryGetModel]:
@@ -35,7 +35,12 @@ async def get_story(
 ):
     return await service.get_story_by_slug(slug)
 
-@router.patch("/{slug}", response_model=StoryUpdateResponseModel, tags=["Story"], dependencies=[Depends(must_story_owner)])
+@router.patch(
+        "/{slug}",
+        response_model=StoryUpdateResponseModel,
+        tags=["Story"],
+        dependencies=[Depends(must_story_owner)]
+)
 async def update_story(
     slug: str,
     update_data: StoryUpdateModel,
@@ -55,6 +60,13 @@ async def delete_story(
     user: UserSystem = Depends(get_current_user)
 ):
     return await service.delete_story_by_slug(slug=slug, user=user)
+
+@router.get("/{slug}/scenes", tags=["Scene"])
+async def get_scenes_of_story(
+    slug: str,
+    service: StoryService = Depends(StoryService)
+) -> LimitOffsetPage[SceneGet]:
+    return await service.get_scenes_of_a_story(slug)
 
 @router.post("/{slug}/scenes", response_model=SceneCreateResponse, tags=["Scene"], dependencies=[Depends(must_story_owner)])
 async def create_scene(

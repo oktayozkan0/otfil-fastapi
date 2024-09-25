@@ -84,6 +84,11 @@ class StoryService(BaseService):
         await self.db.execute(delete_stmt)
         await self.db.commit()
 
+    async def get_scenes_of_a_story(self, slug: str):
+        stmt = select(Scenes).where(Scenes.story_slug==slug)
+        scenes = await paginate(conn=self.db, query=stmt)
+        return scenes
+
     async def create_scene(
             self,
             slug: str,

@@ -32,7 +32,7 @@ def combine_metadata(*args):
     m = MetaData()
     for metadata in args:
         for t in metadata.tables.values():
-            t.tometadata(m)
+            t.to_metadata(m)
     return m
 
 target_metadata = combine_metadata(*[i.metadata for i in LOADED_MODELS])
