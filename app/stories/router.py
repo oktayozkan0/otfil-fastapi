@@ -1,7 +1,8 @@
+from fastapi import APIRouter, Depends, status, Query
+
 from auth.dependencies import get_current_user
 from auth.schemas import UserSystem
 from core.pagination import LimitOffsetPage
-from fastapi import APIRouter, Depends, status
 from stories.dependencies import get_scene_dep, must_story_owner, must_scene_belongs_to_choice_or_exist
 from stories.schemas import (SceneCreateRequest, SceneCreateResponse,
                              StoryCreateModel, StoryCreateResponseModel,
@@ -10,6 +11,7 @@ from stories.schemas import (SceneCreateRequest, SceneCreateResponse,
                              SceneUpdateResponse,SceneInternal, ChoiceCreateRequest,
                              ChoiceInternal, ChoiceUpdate, SceneGet)
 from stories.service import StoryService
+from stories.constants import SceneTypes
 
 
 router = APIRouter(prefix="/stories")
@@ -64,9 +66,10 @@ async def delete_story(
 @router.get("/{slug}/scenes", tags=["Scene"])
 async def get_scenes_of_story(
     slug: str,
-    service: StoryService = Depends(StoryService)
+    type: SceneTypes = None,
+    service: StoryService = Depends(StoryService),
 ) -> LimitOffsetPage[SceneGet]:
-    return await service.get_scenes_of_a_story(slug)
+    return await service.get_scenes_of_a_story(slug, type)
 
 @router.post("/{slug}/scenes", response_model=SceneCreateResponse, tags=["Scene"], dependencies=[Depends(must_story_owner)])
 async def create_scene(

@@ -10,7 +10,8 @@ from core.exceptions import NotFoundException
 from core.services import BaseService
 from stories.models import Scenes, Stories, Choices
 from stories.schemas import SceneCreateRequest, StoryCreateModel, SceneUpdateRequest, ChoiceCreateRequest, SceneInternal, ChoiceUpdate
-from stories.exceptions import CheckSlugsException
+from stories.exceptions import CheckSlugsException, BeginningSceneAlreadyExistException
+from stories.constants import SceneTypes
 
 
 class StoryService(BaseService):
@@ -84,8 +85,10 @@ class StoryService(BaseService):
         await self.db.execute(delete_stmt)
         await self.db.commit()
 
-    async def get_scenes_of_a_story(self, slug: str):
+    async def get_scenes_of_a_story(self, slug: str, type: SceneTypes):
         stmt = select(Scenes).where(Scenes.story_slug==slug)
+        if type:
+            stmt = stmt.where(Scenes.type == type)
         scenes = await paginate(conn=self.db, query=stmt)
         return scenes
 
@@ -94,6 +97,12 @@ class StoryService(BaseService):
             slug: str,
             payload: SceneCreateRequest
     ):
+        if payload.type==SceneTypes.BEGINNING:
+            stmt = select(Scenes).where(Scenes.story_slug==slug, Scenes.type==SceneTypes.BEGINNING)
+            result = await self.db.execute(stmt)
+            instance = result.scalar_one_or_none()
+            if instance:
+                raise BeginningSceneAlreadyExistException
         data = Scenes(**payload.model_dump(), story_slug=slug)
         self.db.add(data)
         await self.db.commit()
@@ -102,7 +111,7 @@ class StoryService(BaseService):
     async def get_scene_by_slug(
             self,
             slug: str,
-            scene_slug: str,
+            scene_slug: str
     ):
         stmt = select(Scenes).where(
             Scenes.slug==scene_slug,
