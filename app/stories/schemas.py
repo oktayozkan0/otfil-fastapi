@@ -17,6 +17,7 @@ class StoryGetModel(StoryCreateResponseModel):
     slug: str
     title: str = Field(max_length=100)
     description: str = Field(max_length=500)
+    img: str
 
 class StoryUpdateModel(BaseModel):
     title: str = Field(max_length=100)
@@ -42,6 +43,7 @@ class SceneGet(BaseModel):
     x: float
     y: float
     type: SceneTypes
+    img: str
 
 class SceneCreateRequest(BaseModel):
     text: str
