@@ -24,10 +24,10 @@ def upgrade() -> None:
     op.add_column('stories', sa.Column('img', sa.String(), nullable=True))
     # TODO: delete these
     op.execute(
-        "UPDATE scenes SET img = '{}' WHERE img IS NULL".format("/static/story_img.jpg")
+        "UPDATE scenes SET img = '{}' WHERE img IS NULL".format("/staticfiles/story_img.jpg")
     )
     op.execute(
-        "UPDATE stories SET img = '{}' WHERE img IS NULL".format("/static/story_img.jpg")
+        "UPDATE stories SET img = '{}' WHERE img IS NULL".format("/staticfiles/story_img.jpg")
     )
     # ### end Alembic commands ###
 
