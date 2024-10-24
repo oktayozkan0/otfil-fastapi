@@ -30,7 +30,7 @@ def get_app() -> FastAPI:
     application.add_exception_handler(HTTPException, http_error_handler)
 
     v1_prefix = "/api/v1"
-    application.mount("/static", staticfiles.StaticFiles(directory="app/staticfiles"), name="static")
+    application.mount("/staticfiles", staticfiles.StaticFiles(directory="app/staticfiles"), name="static")
     application.include_router(health_check_router, prefix=v1_prefix)
     application.include_router(story_router, prefix=v1_prefix)
     application.include_router(auth_router, prefix=v1_prefix)
