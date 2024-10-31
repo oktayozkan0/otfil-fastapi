@@ -4,6 +4,7 @@ import { mdlGetStoriesRequest } from '../../models/service-models/stories/GetSto
 import { StoryService } from '../../services/stories';
 import { toUnLoading } from '../../store/SiteSlice';
 import { useAppDispatch } from '../../store/Hooks';
+import { useTranslation } from 'react-i18next';
 
 
 export type StoryListProps = {
@@ -15,6 +16,7 @@ export type StoryListProps = {
 const StoryList = (props: StoryListProps) => {
     const [storyList, setStoryList] = useState<Story[]>([]);
     const dispatch = useAppDispatch();
+    const { t } = useTranslation();
 
 
     useEffect(() => {
@@ -41,7 +43,7 @@ const StoryList = (props: StoryListProps) => {
                                         key={index}
                                         className="play"
                                     >
-                                        <code>start the story</code>
+                                        <code>{t("story.startStory")}</code>
                                     </button>
                                 </>
                             </a>
@@ -84,7 +86,7 @@ const StoryList = (props: StoryListProps) => {
                                         key={index}
                                         className="play"
                                     >
-                                        <code>edit story</code>
+                                        <code>{t("story.editStory")}</code>
                                     </button>
                                 </>
                             </a>

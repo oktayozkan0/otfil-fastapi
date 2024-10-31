@@ -28,6 +28,7 @@ import { toast } from 'react-toastify';
 import { ChoiceDetail } from './ChoiceDetail';
 import { Choice } from '../../models/domain/choice';
 import './Flow.css'; // Import the CSS file
+import { useTranslation } from 'react-i18next';
 
 const initialNodes: Node[] = [];
 const initialEdges: Edge[] = [];
@@ -49,6 +50,7 @@ const Flow: React.FC<FlowProps> = ({ scenes, story, callback, choices }) => {
     const [selectedChoice, setSelectedChoice] = useState<Choice | null>(null);
     const [beginningNodeAdded, setBeginningNodeAdded] = useState(false);
     const [isBeginningNodeExists, setIsBeginningNodeExists] = useState(false);
+    const { t } = useTranslation();
 
     useEffect(() => {
         const sceneNodes = scenes.map((scene) => ({
@@ -199,14 +201,14 @@ const Flow: React.FC<FlowProps> = ({ scenes, story, callback, choices }) => {
                     className={`flow-button flow-button-beginning ${isBeginningNodeExists ? 'disabled' : ''}`}
                     disabled={isBeginningNodeExists}
                 >
-                    Beginning
+                    {t("flow.beginning")}
                 </button>
                 <button
                     draggable
                     onDragStart={(e) => e.dataTransfer.setData("type", "default")}
                     className="flow-button flow-button-default"
                 >
-                    Default
+                    {t("flow.default")}
                 </button>
             </div>
 
@@ -237,7 +239,7 @@ const Flow: React.FC<FlowProps> = ({ scenes, story, callback, choices }) => {
                             slug={selectedScene?.slug}
                         />
                     }
-                    title={"Scene Details"}
+                    title={t("flow.sceneDetails")}
                 />
             )}
             {isChoiceModalOpen && (
@@ -252,7 +254,7 @@ const Flow: React.FC<FlowProps> = ({ scenes, story, callback, choices }) => {
                             choice={selectedChoice}
                         />
                     }
-                    title={"Choice Details"}
+                    title={t("flow.choiceDetails")}
                 />
             )}
         </div>

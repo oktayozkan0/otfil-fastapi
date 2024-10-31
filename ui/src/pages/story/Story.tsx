@@ -16,6 +16,7 @@ import { Button, Card, Space } from 'antd';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBackward } from '@fortawesome/free-solid-svg-icons';
+import { useTranslation } from 'react-i18next';
 
 const StoryPage = () => {
     const [story, setStory] = useState<Story>();
@@ -25,6 +26,7 @@ const StoryPage = () => {
     const navigate = useNavigate();
     const [choices, setChoices] = useState<Choice[]>([]);
     const [activeScene, setActiveScene] = useState<Scene>();
+    const { t } = useTranslation();
 
     useEffect(() => {
         getStory();
@@ -100,7 +102,7 @@ const StoryPage = () => {
                 onMouseEnter={(e) => (e.currentTarget.style.backgroundColor = '#ff6b81')}
                 onMouseLeave={(e) => (e.currentTarget.style.backgroundColor = '#ff4757')}
             >
-                <FontAwesomeIcon icon={faBackward} /> Stories
+                <FontAwesomeIcon icon={faBackward} /> {t("stories.title")}
             </button>
             {activeScene && (
                 <>

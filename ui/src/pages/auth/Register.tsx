@@ -40,7 +40,7 @@ const Register = () => {
             onSuccess(data) {
                 dispatch(toUnLoading());
                 if (data) {
-                    toast.success(t("login.registrationSuccess"));
+                    toast.success(t("register.registrationSuccess"));
                     navigate(routeContants.LOGIN);
                 } else {
                     toast.error(ObjectHelper.getErrorMessage([{ message: "Failed" }]));
@@ -66,7 +66,7 @@ const Register = () => {
                                 <div className="card-inner card-inner-lg">
                                     <div className="nk-block-head">
                                         <div className="nk-block-head-content">
-                                            <h4 className="nk-block-title">{t("login.register")}</h4>
+                                            <h4 className="nk-block-title">{t("register.register")}</h4>
                                         </div>
                                     </div>
 
@@ -79,55 +79,55 @@ const Register = () => {
                                         autoComplete="off"
                                     >
                                         <Form.Item<mdlSignupRequest>
-                                            label={t("login.firstName")}
+                                            label={t("register.firstName")}
                                             name="first_name"
                                             rules={[{ required: true, message: t("common.required") }]}
                                         >
-                                            <Input placeholder={t("login.username")} />
+                                            <Input placeholder={t("register.firstName")} />
                                         </Form.Item>
                                         <Form.Item<mdlSignupRequest>
-                                            label={t("login.lastName")}
+                                            label={t("register.lastName")}
                                             name="last_name"
                                             rules={[{ required: true, message: t("common.required") }]}
                                         >
-                                            <Input placeholder={t("login.username")} />
+                                            <Input placeholder={t("register.lastName")} />
                                         </Form.Item>
                                         <Form.Item<mdlSignupRequest>
-                                            label={t("login.email")}
+                                            label={t("register.email")}
                                             name="email"
                                             rules={[
                                                 { required: true, message: t("common.required") },
                                                 {
                                                     type: "email",
-                                                    message: t("login.invalidEmail") || "Invalid email format",
+                                                    message: t("register.invalidEmail") || "Invalid email format",
                                                 },
                                             ]}
                                         >
-                                            <Input placeholder={t("login.email")} />
+                                            <Input placeholder={t("register.email")} />
                                         </Form.Item>
 
                                         <Form.Item<mdlSignupRequest>
-                                            label={t("login.username")}
+                                            label={t("register.username")}
                                             name="username"
                                             rules={[{ required: true, message: t("common.required") }]}
                                         >
-                                            <Input placeholder={t("login.username")} />
+                                            <Input placeholder={t("register.username")} />
                                         </Form.Item>
                                         <Form.Item<mdlSignupRequest>
-                                            label={t("login.passCode")}
+                                            label={t("register.passCode")}
                                             name="password"
                                             rules={[
                                                 { required: true, message: t("common.required") },
-                                                { min: 8, message: t("login.notValidPassword") }
+                                                { min: 8, message: t("register.notValidPassword") }
                                             ]}
                                         >
-                                            <Input.Password placeholder={t("login.passCode")} />
+                                            <Input.Password placeholder={t("register.passCode")} />
                                         </Form.Item>
 
                                         <Form.Item>
                                             <Flex align="center" justify="flex-end">
                                                 <Button type="primary" htmlType="submit" loading={isLoading}>
-                                                    {t("login.signIn")}
+                                                    {t("register.signIn")}
                                                 </Button>
                                             </Flex>
                                         </Form.Item>

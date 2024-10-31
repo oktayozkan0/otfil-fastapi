@@ -1,1 +1,80 @@
-{}
+{
+    "userMenu": {
+        "settings": "Ayarlar",
+        "darkMode": "Karanlık Mod",
+        "signOut": "Çıkış Yap"
+    },
+    "language": {
+        "english": "İngilizce",
+        "turkish": "Türkçe"
+    },
+    "route": {
+        "stories": "Hikayeler",
+        "studio": "Stüdyo"
+    },
+    "footer": {
+        "termsConditions": "Şartlar ve Koşullar",
+        "privacyPolicy": "Gizlilik Politikası",
+        "english": "İngilizce",
+        "turkce": "Türkçe",
+        "tradeMark": "© 2024 FibGate Group. Tüm Hakları Saklıdır."
+    },
+    "login": {
+        "howCanIWrite": "Nasıl Yazabilirim?",
+        "signInSub": "Hotel2Sejour paneline e-posta ve şifrenizle erişin.",
+        "email": "E-posta Adresi",
+        "passCodePlaceholder": "Şifrenizi girin",
+        "mailPlaceholder": "E-posta adresinizi girin",
+        "notValidEmail": "Geçersiz E-posta Adresi",
+        "signIn": "Giriş Yap",
+        "username": "Kullanıcı Adı",
+        "passCode": "Şifre",
+        "notValidPassword": "Şifre en az 8 karakter olmalıdır.",
+        "notAMember": "Üye değil misiniz?",
+        "register": "Kayıt Ol",
+        "forgotPassword": "Şifremi Unuttum"
+    },
+    "register": {
+        "register": "Kayıt Ol",
+        "firstName": "Ad",
+        "lastName": "Soyad",
+        "email": "E-posta",
+        "username": "Kullanıcı Adı",
+        "passCode": "Şifre",
+        "invalidEmail": "Geçersiz e-posta formatı.",
+        "notValidPassword": "Şifre en az 8 karakter olmalıdır.",
+        "registrationSuccess": "Kayıt başarıyla tamamlandı.",
+        "signIn": "Kayıt"
+    },
+    "common": {
+        "error": "Bir hata oluştu.",
+        "success": "İşlem başarıyla tamamlandı.",
+        "required": "Bu alan zorunludur.",
+        "save": "Kaydet"
+    },
+    "stories": {
+        "title": "Hikayeler",
+        "description": "Hikaye Listesi"
+    },
+    "studio": {
+        "confirmDelete": "Silme İşlemini Onayla",
+        "delete": "Sil",
+        "editInfo": "Bilgileri Düzenle",
+        "addNew": "Ekle",
+        "title": "Stüdyo",
+        "description": "Hikaye Oluştur",
+        "story": {
+            "detailTitle": "Detay"
+        }
+    },
+    "story": {
+        "startStory": "Hikaye Başlat",
+        "editStory": "Hikayeyi Düzenle"
+    },
+    "flow": {
+        "beginning": "Başlangıç",
+        "default": "Varsayılan",
+        "sceneDetails": "Sahne Detayları",
+        "choiceDetails": "Seçim Detayları"
+    }
+}
