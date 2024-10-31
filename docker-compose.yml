@@ -34,7 +34,7 @@ services:
     networks:
       - net
 
-  otfil:
+  otfil-api:
     depends_on:
       - postgres
     build:
@@ -47,6 +47,16 @@ services:
     command: >
       bash -c "alembic upgrade head || echo 'Alembic upgrade failed' && uvicorn --host 0.0.0.0 --port 8000 app.main:app"
 
+  otfil-ui:
+    depends_on:
+      - postgres
+    build:
+      context: ./ui
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    networks:
+      - net
 
 volumes:
   otfilapi:
