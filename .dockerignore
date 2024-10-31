@@ -7,3 +7,5 @@ docker-compose.yml
 Dockerfile
 README.md
 ruff.toml
+**/node_modules
+

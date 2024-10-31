@@ -1,0 +1,93 @@
+.App {
+  text-align: center;
+}
+
+.App-logo {
+  height: 40vmin;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .App-logo {
+    animation: App-logo-spin infinite 20s linear;
+  }
+}
+
+.App-header {
+  background-color: #282c34;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(10px + 2vmin);
+  color: white;
+}
+
+.App-link {
+  color: #61dafb;
+}
+
+@keyframes App-logo-spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  25% {
+    transform: rotate(2deg);
+  }
+
+  75% {
+    transform: rotate(-2deg);
+  }
+
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+@keyframes border-animation {
+  0% {
+    border-color: #1E90FF;
+    /* Dodger Blue */
+    /* Steel Blue */
+    transform: scale(1);
+  }
+
+  25% {
+    border-color: #4682B4;
+    /* Steel Blue */
+    /* Cadet Blue */
+    transform: scale(1.02);
+  }
+
+  50% {
+    border-color: #5F9EA0;
+    /* Cadet Blue */
+    /* Light Sea Green */
+    transform: scale(1);
+  }
+
+  75% {
+    border-color: #20B2AA;
+    /* Light Sea Green */
+    /* Dark Cyan */
+    transform: scale(1.02);
+  }
+
+  100% {
+    border-color: #008B8B;
+    /* Dark Cyan */
+    /* Dodger Blue */
+    transform: scale(1);
+  }
+}
+
+.signup {
+  color: rgb(0, 0, 0);
+  font-weight: 500;
+  border: 3px solid;
+  padding: 5px;
+  border-radius: 30px;
+  animation: border-animation 3s infinite, App-logo-spin 1s infinite;
+}

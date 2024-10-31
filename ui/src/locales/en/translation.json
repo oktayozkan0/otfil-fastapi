@@ -1,0 +1,34 @@
+{
+  "userMenu": {
+    "settings": "Settings",
+    "darkMode": "Dark Mode",
+    "signOut": "Sign Out"
+  },
+  "language": {
+    "english": "English",
+    "turkish": "Turkish"
+  },
+  "route": {
+    "stories": "Stories",
+    "studio": "Studio"
+  },
+  "footer": {
+    "termsConditions": "Terms & Conditions",
+    "privacyPolicy": "Privacy Policy",
+    "english": "English",
+    "turkce": "Türkçe",
+    "tradeMark": "© 2024 FibGate Group. All Rights Reserved."
+  },
+  "login": {
+    "howCanIWrite": "How Can I Write?",
+    "signIn": "Sign In",
+    "signInSub": "Access the Hotel2Sejour panel, using your email and passcode.",
+    "email": "Email Address",
+    "passCode": "Passcode",
+    "passCodePlaceholder": "Enter your passcode",
+    "mailPlaceholder": "Enter your e-mail address",
+    "forgotPassword": "Forgot Passcode?",
+    "notValidEmail": "Invalid Email Address",
+    "notValidPassword": "Password Must Contain At Least 8 Characters"
+  }
+}
