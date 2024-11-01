@@ -31,8 +31,8 @@ const initialState: IinitialState = {
   isMobile: window.innerWidth <= 1024,
   darkMode:
     !InputHelper.isNullOrUndefinedOrEmpty(CookieManager.get("darkMode"))
-      ? CookieManager.get("darkMode")
-      : false,
+      ? false
+      : true,
   language:
     !InputHelper.isNullOrUndefinedOrEmpty(CookieManager.get("language"))
       ? CookieManager.get("language")
@@ -68,8 +68,11 @@ const siteSlice = createSlice({
       state.loading = false;
     },
     toggleDarkMode: (state) => {
-      state.darkMode = !state.darkMode;
-      CookieManager.set("darkMode", String(state.darkMode));
+      state.darkMode = !state.darkMode
+      if (state.darkMode)
+        CookieManager.remove("darkMode")
+      else
+        CookieManager.set("darkMode", "true");
     },
     openMobileMenu: (state, action) => {
       state.openMobileMenu = action.payload;

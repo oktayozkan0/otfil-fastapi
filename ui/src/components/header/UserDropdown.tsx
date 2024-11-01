@@ -12,7 +12,7 @@ import {
 import { useAppDispatch, useAppSelector } from "../../store/Hooks";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { logout } from "../../store/SiteSlice";
+import { logout, toggleDarkMode } from "../../store/SiteSlice";
 import { InputHelper } from "../../utils/InputHelper";
 import { HtmlHelper } from "../../utils/HtmlHelper";
 import { Switch } from "antd";
@@ -111,11 +111,21 @@ export const UserDropdown = memo(({ itemClickCallback }: UserDropdownProps) => {
         <div className="dropdown-inner">
           <ul className="link-list">
             <li>
+              <a className="pointer">
+                <FontAwesomeIcon icon={faMoon} />
+                <span className="icon-item-label">
+                  {t("userMenu.darkMode")}
+                </span>
+                <Switch className="menu-toggler" checked={siteStore.darkMode} onChange={() => dispatch(toggleDarkMode())} />
+              </a>
+            </li>
+            <li>
               <a className="pointer" onClick={handleSignOut}>
                 <FontAwesomeIcon icon={faRightFromBracket} />
                 <span className="icon-item-label">{t("userMenu.signOut")}</span>
               </a>
             </li>
+
           </ul>
         </div>
       </div>

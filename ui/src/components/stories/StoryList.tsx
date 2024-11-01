@@ -26,7 +26,7 @@ const StoryList = (props: StoryListProps) => {
     const getStories = async () => {
         var request = new mdlGetStoriesRequest(10, 0);
         var response = await StoryService.List(request);
-        if (response != null)
+        if (response != null && response.items != null)
             setStoryList(response.items)
         dispatch(toUnLoading());
     }

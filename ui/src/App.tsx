@@ -8,6 +8,8 @@ import { useTranslation } from "react-i18next";
 import { HtmlHelper } from "./utils/HtmlHelper";
 import { QueryClient, QueryClientProvider } from "react-query";
 import React from "react";
+import { ConfigProvider, theme } from "antd";
+const { defaultAlgorithm, darkAlgorithm } = theme;
 
 function App() {
   const store = useAppSelector((state) => state.site);
@@ -25,12 +27,14 @@ function App() {
   }, [store.darkMode, store.openMobileMenu, store.language]);
   return (
     <React.StrictMode>
-      <QueryClientProvider client={queryClient}>
-        <Overlay />
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
-      </QueryClientProvider>
+      <ConfigProvider theme={{ algorithm: store.darkMode ? darkAlgorithm : defaultAlgorithm }}>
+        <QueryClientProvider client={queryClient}>
+          <Overlay />
+          <BrowserRouter>
+            <AppRoutes />
+          </BrowserRouter>
+        </QueryClientProvider>
+      </ConfigProvider>
     </React.StrictMode>
   );
 }

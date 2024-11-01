@@ -7,7 +7,7 @@ export const Logo = () => {
       src={otfilLogo}
       width={"40px"}
       height={"40px"}
-      style={{ maxWidth: "100vw" }}
+      style={{ maxWidth: "100vw", objectFit: 'cover' }}
       alt="logo"
     />
   );
