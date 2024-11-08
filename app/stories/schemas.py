@@ -13,7 +13,6 @@ class StoryCreateResponseModel(BaseModel):
     description: str = Field(max_length=500)
 
 class StoryGetModel(StoryCreateResponseModel):
-    id: int
     slug: str
     title: str = Field(max_length=100)
     description: str = Field(max_length=500)
@@ -108,7 +107,7 @@ class ChoiceGet(BaseModel):
     text: str
 
 class SceneDetailed(SceneGet):
-    choices: ChoiceGet
+    choices: list[ChoiceGet]
 
 class StoryDetailed(StoryGetModel):
-    scenes: SceneDetailed
+    scenes: list[SceneDetailed]

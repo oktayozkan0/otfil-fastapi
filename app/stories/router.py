@@ -9,7 +9,7 @@ from stories.schemas import (SceneCreateRequest, SceneCreateResponse,
                              StoryGetModel, StoryUpdateModel,
                              StoryUpdateResponseModel, SceneUpdateRequest,
                              SceneUpdateResponse,SceneInternal, ChoiceCreateRequest,
-                             ChoiceInternal, ChoiceUpdate, SceneGet)
+                             ChoiceInternal, ChoiceUpdate, SceneGet, StoryDetailed)
 from stories.service import StoryService
 from stories.constants import SceneTypes
 
@@ -37,7 +37,7 @@ async def list_my_stories(
 ) -> LimitOffsetPage[StoryGetModel]:
     return await service.list_user_stories(user)
 
-@router.get("/detailed/{slug}", tags=["Story"], name="stories:detailed-story")
+@router.get("/detailed/{slug}", tags=["Story"], name="stories:detailed-story", response_model=StoryDetailed)
 async def detailed_story(
     slug: str,
     service: StoryService = Depends(StoryService),
