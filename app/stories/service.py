@@ -46,7 +46,15 @@ class StoryService(BaseService):
         return stories
 
     async def get_detailed_story(self, slug: str):
-        stmt = select(Stories).where(Stories.is_active==True, Stories.slug==slug).options(joinedload(Stories.scenes).joinedload(Scenes.choices))
+        stmt = (select(Stories)
+                .where(Stories.is_active==True, Stories.slug==slug)
+                .options(
+                    load_only(
+                        Stories.id,Stories.slug,Stories.title,Stories.description,Stories.img
+                    )
+                    .joinedload(Stories.scenes)
+                    .load_only(Scenes.text,Scenes.title,Scenes.slug,Scenes.x,Scenes.y,Scenes.type,Scenes.img)
+                    .joinedload(Scenes.choices).load_only(Choices.scene_slug,Choices.next_scene_slug,Choices.text)))
         results = await self.db.execute(stmt)
         instance = results.unique().scalar_one_or_none()
         return instance

@@ -101,3 +101,14 @@ class SceneInternal(BaseModel):
     slug: str
     story_id: int
     choices: ChoiceInternal | None = None
+
+class ChoiceGet(BaseModel):
+    scene_slug: str
+    next_scene_slug: str
+    text: str
+
+class SceneDetailed(SceneGet):
+    choices: ChoiceGet
+
+class StoryDetailed(StoryGetModel):
+    scenes: SceneDetailed

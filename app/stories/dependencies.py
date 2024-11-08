@@ -1,5 +1,6 @@
 from auth.dependencies import get_current_user
 from auth.schemas import UserSystem
+from auth.exceptions import UnauthorizedException
 from core.exceptions import NotFoundException
 from core.services import get_db
 from fastapi import Depends, Path
@@ -20,7 +21,7 @@ async def must_story_owner(
     if not instance:
         raise NotFoundException(detail=f"Slug {slug} not found")
     if instance.owner_id != user.id:
-        raise NotFoundException(detail=f"You are not the owner of {slug}")
+        raise UnauthorizedException(detail=f"You are not the owner of {slug}")
 
 
 async def must_scene_belongs_to_choice_or_exist(

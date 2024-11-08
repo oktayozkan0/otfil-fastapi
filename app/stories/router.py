@@ -41,6 +41,7 @@ async def list_my_stories(
 async def detailed_story(
     slug: str,
     service: StoryService = Depends(StoryService),
+    user: UserSystem = Depends(must_story_owner)
 ):
     return await service.get_detailed_story(slug=slug)
 
