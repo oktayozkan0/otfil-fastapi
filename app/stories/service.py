@@ -45,6 +45,12 @@ class StoryService(BaseService):
         stories = await paginate(self.db, stmt)
         return stories
 
+    async def get_detailed_story(self, slug: str):
+        stmt = select(Stories).where(Stories.is_active==True, Stories.slug==slug).options(joinedload(Stories.scenes).joinedload(Scenes.choices))
+        results = await self.db.execute(stmt)
+        instance = results.unique().scalar_one_or_none()
+        return instance
+
     async def get_story_by_slug(self, slug: str):
         """Fetches a story by its slug if it is active."""
         stmt = (
