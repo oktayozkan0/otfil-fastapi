@@ -40,6 +40,11 @@ class StoryService(BaseService):
         )
         return stories
 
+    async def list_user_stories(self, user: UserSystem):
+        stmt = select(Stories).where(Stories.is_active==True, Stories.owner_id == user.id).options(load_only(Stories.description, Stories.title, Stories.slug))
+        stories = await paginate(self.db, stmt)
+        return stories
+
     async def get_story_by_slug(self, slug: str):
         """Fetches a story by its slug if it is active."""
         stmt = (

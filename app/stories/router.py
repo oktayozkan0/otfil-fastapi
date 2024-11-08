@@ -30,6 +30,13 @@ async def list_stories(
 ) -> LimitOffsetPage[StoryGetModel]:
     return await service.list_stories()
 
+@router.get("/me", tags=["Story"], name="stories:list-my-stories")
+async def list_my_stories(
+    service: StoryService = Depends(StoryService),
+    user: UserSystem = Depends(get_current_user)
+) -> LimitOffsetPage[StoryGetModel]:
+    return await service.list_user_stories(user)
+
 @router.get("/{slug}", response_model=StoryCreateResponseModel, tags=["Story"])
 async def get_story(
     slug: str,

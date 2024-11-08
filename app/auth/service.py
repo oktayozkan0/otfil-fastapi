@@ -45,7 +45,6 @@ class AuthService(BaseService):
         return new_user  # Return the newly created user
 
     async def login_user(self, form_data: OAuth2PasswordRequestForm):
-        # Fetch user by username or email
         stmt = select(Users).where((Users.username == form_data.username) | (Users.email == form_data.username))
         result = await self.db.execute(stmt)
         user = result.scalar_one_or_none()

@@ -1,5 +1,5 @@
 from auth.dependencies import get_current_user
-from auth.schemas import RefreshTokenRequest, UserSignupRequest, UserSystem, ChangePasswordRequest
+from auth.schemas import RefreshTokenRequest, UserSignupRequest, UserSystem, ChangePasswordRequest, UserSignupResponse
 from auth.service import AuthService
 from fastapi import APIRouter, Depends
 from fastapi.security import OAuth2PasswordRequestForm
@@ -7,7 +7,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
 
-@router.post("/signup", summary="Sign up for users", name="Sign Up")
+@router.post("/signup", summary="Sign up for users", name="Sign Up", response_model=UserSignupResponse)
 async def create_user(
     data: UserSignupRequest,
     service: AuthService = Depends(AuthService)

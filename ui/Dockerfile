@@ -1,5 +1,5 @@
 # 1. Node.js resmi imajını kullanıyoruz
-FROM node:18
+FROM node:18-alpine
 
 # 2. Çalışma dizinini ayarlıyoruz
 WORKDIR /app
