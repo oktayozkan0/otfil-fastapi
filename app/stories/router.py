@@ -1,3 +1,4 @@
+from typing import Annotated
 from fastapi import APIRouter, Depends, status, Query
 
 from auth.dependencies import get_current_user
@@ -26,9 +27,10 @@ async def create_story(
 
 @router.get("", tags=["Story"], name="stories:list-stories")
 async def list_stories(
-    service: StoryService = Depends(StoryService)
+    service: StoryService = Depends(StoryService),
+    categories: Annotated[list[str] | None, Query()] = None
 ) -> LimitOffsetPage[StoryGetModel]:
-    return await service.list_stories()
+    return await service.list_stories(categories=categories)
 
 @router.get("/me", tags=["Story"], name="stories:list-my-stories")
 async def list_my_stories(
@@ -37,11 +39,16 @@ async def list_my_stories(
 ) -> LimitOffsetPage[StoryGetModel]:
     return await service.list_user_stories(user)
 
-@router.get("/detailed/{slug}", tags=["Story"], name="stories:detailed-story", response_model=StoryDetailed)
+@router.get(
+        "/detailed/{slug}",
+        tags=["Story"],
+        name="stories:detailed-story",
+        response_model=StoryDetailed,
+        dependencies=[Depends(must_story_owner)]
+)
 async def detailed_story(
     slug: str,
-    service: StoryService = Depends(StoryService),
-    user: UserSystem = Depends(must_story_owner)
+    service: StoryService = Depends(StoryService)
 ):
     return await service.get_detailed_story(slug=slug)
 

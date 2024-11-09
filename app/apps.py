@@ -1,4 +1,5 @@
 APPS = [
     "stories",
-    "auth"
+    "auth",
+    "categories"
 ]

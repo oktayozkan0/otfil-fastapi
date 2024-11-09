@@ -3,10 +3,16 @@ from slugify import slugify
 
 from core.models import Base
 from sqlalchemy import (Boolean, Column, Float, ForeignKey, Integer, String,
-                        event, UniqueConstraint, Enum, URL)
+                        event, UniqueConstraint, Enum)
 from sqlalchemy.orm import relationship
 from stories.constants import SceneTypes
 
+
+class StoryCategories(Base):
+    story_slug = Column(String, ForeignKey("stories.slug"))
+    category_slug = Column(String, ForeignKey("categories.slug"))
+
+    category = relationship("Categories", back_populates="stories", foreign_keys=[category_slug])
 
 class Stories(Base):
     title = Column(String(100))
@@ -17,6 +23,7 @@ class Stories(Base):
     owner_id = Column(Integer, ForeignKey("users.id"))
 
     scenes = relationship("Scenes", back_populates="story", foreign_keys="Scenes.story_slug")
+    categories = relationship("StoryCategories", foreign_keys="StoryCategories.story_slug")
 
 class Scenes(Base):
     text = Column(String(255), nullable=False)
@@ -47,6 +54,6 @@ def generate_slug(target, value, oldvalue, initiator):
     if value and (not target.slug or value != oldvalue):
         target.slug = f"{slugify(value, max_length=30)}-{int(time() * 1000)}"
 
-
+## burada olmaması gerekir. neden burada yazdım bilmiyorum. serviste oluşturmak daha mantıklı olabilir.
 event.listen(Stories.title, "set", generate_slug, retval=False)
 event.listen(Scenes.title, "set", generate_slug, retval=False)

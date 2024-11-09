@@ -8,7 +8,7 @@ from sqlalchemy.exc import IntegrityError
 from auth.schemas import UserSystem
 from core.exceptions import NotFoundException
 from core.services import BaseService
-from stories.models import Scenes, Stories, Choices
+from stories.models import Scenes, Stories, Choices, StoryCategories
 from stories.schemas import (
     SceneCreateRequest,
     StoryCreateModel,
@@ -30,13 +30,16 @@ class StoryService(BaseService):
         await self.db.commit()
         return data
 
-    async def list_stories(self):
+    async def list_stories(self, categories: list[str] | None):
         """Returns a paginated list of active stories."""
+        stmt = (select(Stories)
+            .where(Stories.is_active == True)
+            .options(joinedload(Stories.categories).joinedload(StoryCategories.category), load_only(Stories.description, Stories.title, Stories.slug)))
+        if categories:
+            stmt = stmt.where(Stories.categories.and_(StoryCategories.category_slug.in_(categories)))
         stories = await paginate(
             self.db,
-            select(Stories)
-            .where(Stories.is_active == True)
-            .options(load_only(Stories.description, Stories.title, Stories.slug))
+            stmt
         )
         return stories
 
@@ -49,6 +52,7 @@ class StoryService(BaseService):
         stmt = (select(Stories)
                 .where(Stories.is_active==True, Stories.slug==slug)
                 .options(
+                    joinedload(Stories.categories),
                     load_only(
                         Stories.id,Stories.slug,Stories.title,Stories.description,Stories.img
                     )

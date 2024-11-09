@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field
 
 from stories.constants import SceneTypes
+from categories.schemas import GetCategoriesResponse
 
 
 class StoryCreateModel(BaseModel):
@@ -12,11 +13,15 @@ class StoryCreateResponseModel(BaseModel):
     title: str = Field(max_length=100)
     description: str = Field(max_length=500)
 
+class StoryCategoriesModel(BaseModel):
+    category: GetCategoriesResponse
+
 class StoryGetModel(StoryCreateResponseModel):
     slug: str
     title: str = Field(max_length=100)
     description: str = Field(max_length=500)
     img: str
+    categories: list[StoryCategoriesModel] | None = None
 
 class StoryUpdateModel(BaseModel):
     title: str = Field(max_length=100)

@@ -1,6 +1,6 @@
 from core.models import Base
-from sqlalchemy import Boolean, Column, String
-
+from sqlalchemy import Boolean, Column, String, Enum
+from auth.constants import UserTypes
 
 class Users(Base):
     email = Column(String(254), unique=True)
@@ -10,3 +10,4 @@ class Users(Base):
     last_name = Column(String(254), nullable=True)
     is_approved = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
+    user_type = Column(Enum(UserTypes), nullable=True, default=UserTypes.USER)

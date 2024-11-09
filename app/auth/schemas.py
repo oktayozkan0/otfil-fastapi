@@ -3,6 +3,7 @@ from typing import Optional
 from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
 
 from auth.exceptions import PasswordsDoesNotMatchException
+from auth.constants import UserTypes
 
 
 class UserSignupRequest(BaseModel):
@@ -42,6 +43,7 @@ class UserSystem(BaseModel):
     password: str
     first_name: str | None = None
     last_name: str | None = None
+    user_type: UserTypes | None = None
 
 class ChangePasswordRequest(BaseModel):
     old_password: str = Field(..., min_length=8)
