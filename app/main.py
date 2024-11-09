@@ -12,20 +12,20 @@ from core.config import get_app_settings
 from core.exceptions import http_error_handler
 from fastapi import FastAPI, HTTPException, staticfiles
 from fastapi_pagination import add_pagination
-from fastapi.middleware.cors import CORSMiddleware  # Import CORSMiddleware
+from fastapi.middleware.cors import CORSMiddleware
+
 
 
 def get_app() -> FastAPI:
     settings = get_app_settings()
     application = FastAPI(**settings.model_dump())
 
-    # Add CORS middleware
     application.add_middleware(
         CORSMiddleware,
-        allow_origins=["*"],  # Allows all origins, you can specify specific origins here instead of "*"
+        allow_origins=["*"],
         allow_credentials=True,
-        allow_methods=["*"],  # Allows all HTTP methods, you can restrict as needed
-        allow_headers=["*"],  # Allows all headers, you can restrict specific headers
+        allow_methods=["*"],
+        allow_headers=["*"],
     )
 
     application.add_exception_handler(HTTPException, http_error_handler)

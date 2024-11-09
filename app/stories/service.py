@@ -44,7 +44,9 @@ class StoryService(BaseService):
         return stories
 
     async def list_user_stories(self, user: UserSystem):
-        stmt = select(Stories).where(Stories.is_active==True, Stories.owner_id == user.id).options(load_only(Stories.description, Stories.title, Stories.slug))
+        stmt = (select(Stories)
+                .where(Stories.is_active==True, Stories.owner_id == user.id)
+                .options(load_only(Stories.description, Stories.title, Stories.slug)))
         stories = await paginate(self.db, stmt)
         return stories
 
