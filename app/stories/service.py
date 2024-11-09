@@ -52,7 +52,7 @@ class StoryService(BaseService):
         stmt = (select(Stories)
                 .where(Stories.is_active==True, Stories.slug==slug)
                 .options(
-                    joinedload(Stories.categories),
+                    joinedload(Stories.categories).joinedload(StoryCategories.category),
                     load_only(
                         Stories.id,Stories.slug,Stories.title,Stories.description,Stories.img
                     )
