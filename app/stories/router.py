@@ -40,7 +40,7 @@ async def list_my_stories(
     return await service.list_user_stories(user)
 
 @router.get(
-        "/detailed/{slug}",
+        "/{slug}/detailed",
         tags=["Story"],
         name="stories:detailed-story",
         response_model=StoryDetailed,
