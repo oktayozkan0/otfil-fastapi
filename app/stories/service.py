@@ -1,5 +1,7 @@
+import uuid
 from datetime import datetime
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, UploadFile
+from fastapi.responses import JSONResponse
 from fastapi_pagination.ext.sqlalchemy import paginate
 from sqlalchemy import select, update
 from sqlalchemy.orm import load_only, joinedload
@@ -15,11 +17,12 @@ from stories.schemas import (
     SceneUpdateRequest,
     ChoiceCreateRequest,
     SceneInternal,
-    ChoiceUpdate
+    ChoiceUpdate,
+    StoryUpdateModel
 )
-from stories.exceptions import CheckSlugsException, BeginningSceneAlreadyExistException
-from stories.constants import SceneTypes
-
+from stories.exceptions import CheckSlugsException, BeginningSceneAlreadyExistException, CannotUploadImageException
+from stories.constants import SceneTypes, ALLOWED_IMAGE_TYPES
+from s3.client import upload_to_s3
 
 class StoryService(BaseService):
     
@@ -78,7 +81,7 @@ class StoryService(BaseService):
             raise NotFoundException(detail=f"Story with slug '{slug}' not found")
         return instance
 
-    async def update_story_by_slug(self, slug: str, update_data: StoryCreateModel, user: UserSystem):
+    async def update_story_by_slug(self, slug: str, update_data: StoryUpdateModel, user: UserSystem):
         """Updates story by its slug and ensures the user is the owner."""
         stmt = select(Stories).where(Stories.slug == slug, Stories.owner_id == user.id)
         story = await self.db.execute(stmt)
@@ -91,12 +94,28 @@ class StoryService(BaseService):
             .where(Stories.slug == slug)
             .values(**update_data.model_dump(exclude_none=True))
             .returning(Stories)
-            .options(load_only(Stories.slug, Stories.title, Stories.description))
+            .options(load_only(Stories.slug, Stories.title, Stories.description, Stories.img))
         )
         update_story = await self.db.execute(update_stmt)
         await self.db.commit()
         update_instance = update_story.scalar_one_or_none()
         return update_instance
+
+    async def upload_image_to_story(self, slug: str, image: UploadFile):
+        if not image:
+            return
+        if image.content_type not in ALLOWED_IMAGE_TYPES:
+            return JSONResponse({"allowed_types": ALLOWED_IMAGE_TYPES}, 500)
+        key = f"{str(uuid.uuid4())}.{image.content_type.split('/')[1]}"
+        try:
+            upload_to_s3(image.file.read(), key)
+        except:
+            raise CannotUploadImageException
+        stmt = update(Stories).where(Stories.slug == slug).values(img=key).returning(Stories).options(load_only(Stories.slug, Stories.title, Stories.description, Stories.img))
+        story = await self.db.execute(stmt)
+        await self.db.commit()
+        instance = story.scalar_one_or_none()
+        return instance
 
     async def delete_story_by_slug(self, slug: str, user: UserSystem):
         """Soft deletes a story by setting it inactive and marking the deletion time."""
@@ -164,6 +183,22 @@ class StoryService(BaseService):
         update_scene = await self.db.execute(update_stmt)
         await self.db.commit()
         return update_scene.scalar_one_or_none()
+
+    async def upload_image_to_scene(self, slug: str, scene_slug: str, image: UploadFile):
+        if not image:
+            return
+        if image.content_type not in ALLOWED_IMAGE_TYPES:
+            return JSONResponse({"allowed_types": ALLOWED_IMAGE_TYPES}, 500)
+        key = f"{str(uuid.uuid4())}.{image.content_type.split('/')[1]}"
+        try:
+            upload_to_s3(image.file.read(), key)
+        except:
+            raise CannotUploadImageException
+        stmt = update(Scenes).where(Scenes.story_slug == slug, Scenes.slug == scene_slug).values(img=key).returning(Scenes).options(load_only(Scenes.text, Scenes.title, Scenes.x, Scenes.y, Scenes.img))
+        scene = await self.db.execute(stmt)
+        await self.db.commit()
+        instance = scene.scalar_one_or_none()
+        return instance
 
     async def delete_scene(self, slug: str, scene_slug: str):
         """Soft deletes a scene by setting it inactive and marking the deletion time."""

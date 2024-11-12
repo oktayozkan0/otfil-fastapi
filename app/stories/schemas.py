@@ -27,6 +27,9 @@ class StoryUpdateModel(BaseModel):
     title: str = Field(max_length=100)
     description: str = Field(max_length=500)
 
+class StoryImageModel(BaseModel):
+    img: str | None = None
+
 class StoryUpdateResponseModel(BaseModel):
     slug: str
     title: str = Field(max_length=100)

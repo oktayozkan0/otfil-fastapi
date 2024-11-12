@@ -6,6 +6,7 @@ from sqlalchemy import (Boolean, Column, Float, ForeignKey, Integer, String,
                         event, UniqueConstraint, Enum)
 from sqlalchemy.orm import relationship
 from stories.constants import SceneTypes
+from utils.utils import generate_slug
 
 
 class StoryCategories(Base):
@@ -50,10 +51,10 @@ class Choices(Base):
 
     scenes = relationship("Scenes", back_populates="choices", foreign_keys=[scene_slug])
 
-def generate_slug(target, value, oldvalue, initiator):
+def target_slug(target, value, oldvalue, initiator):
     if value and (not target.slug or value != oldvalue):
-        target.slug = f"{slugify(value, max_length=30)}-{int(time() * 1000)}"
+        target.slug = generate_slug(value)
 
 ## burada olmaması gerekir. neden burada yazdım bilmiyorum. serviste oluşturmak daha mantıklı olabilir.
-event.listen(Stories.title, "set", generate_slug, retval=False)
-event.listen(Scenes.title, "set", generate_slug, retval=False)
+event.listen(Stories.title, "set", target_slug, retval=False)
+event.listen(Scenes.title, "set", target_slug, retval=False)

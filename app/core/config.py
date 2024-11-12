@@ -24,6 +24,10 @@ class AppSettings(BaseModel):
     access_token_expire_minutes: int = 30
     refresh_token_expire_minutes: int = 60 * 24 * 7
     redis_url: RedisDsn
+    aws_s3_bucket_name: str | None = None
+    aws_region: str | None = None
+    aws_access_key: str | None = None
+    aws_secret_key: str | None = None
 
 @lru_cache
 def get_app_settings() -> AppSettings:

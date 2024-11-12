@@ -7,6 +7,7 @@ import uvicorn
 from auth.router import router as auth_router
 from healthcheck import router as health_check_router
 from stories.router import router as story_router
+from stories.router import image_router as image_router
 from categories.router import router as category_router
 from core.config import get_app_settings
 from core.exceptions import http_error_handler
@@ -34,6 +35,7 @@ def get_app() -> FastAPI:
     application.mount("/staticfiles", staticfiles.StaticFiles(directory="app/staticfiles"), name="static")
     application.include_router(health_check_router, prefix=v1_prefix)
     application.include_router(story_router, prefix=v1_prefix)
+    application.include_router(image_router)
     application.include_router(auth_router, prefix=v1_prefix)
     application.include_router(category_router, prefix=v1_prefix)
     add_pagination(application)

@@ -1,5 +1,6 @@
 from typing import Annotated
-from fastapi import APIRouter, Depends, status, Query
+from fastapi import APIRouter, Depends, status, Query, UploadFile
+from fastapi.responses import StreamingResponse
 
 from auth.dependencies import get_current_user
 from auth.schemas import UserSystem
@@ -10,10 +11,18 @@ from stories.schemas import (SceneCreateRequest, SceneCreateResponse,
                              StoryGetModel, StoryUpdateModel,
                              StoryUpdateResponseModel, SceneUpdateRequest,
                              SceneUpdateResponse,SceneInternal, ChoiceCreateRequest,
-                             ChoiceInternal, ChoiceUpdate, SceneGet, StoryDetailed)
+                             ChoiceInternal, ChoiceUpdate, SceneGet, StoryDetailed, StoryImageModel)
 from stories.service import StoryService
 from stories.constants import SceneTypes
+from s3.client import get_from_s3
 
+
+image_router = APIRouter(prefix="/images")
+
+@image_router.get("/{image_id}")
+async def get_image(image_id: str):
+    data = get_from_s3(image_id)
+    return StreamingResponse(data.get("Body"))
 
 router = APIRouter(prefix="/stories")
 
@@ -58,6 +67,14 @@ async def get_story(
     service: StoryService = Depends(StoryService)
 ):
     return await service.get_story_by_slug(slug)
+
+@router.post("/{slug}/upload", tags=["Story"])
+async def upload_image_to_story(
+    slug: str,
+    image: UploadFile | None = None,
+    service: StoryService = Depends(StoryService),
+):
+    return await service.upload_image_to_story(slug, image)
 
 @router.patch(
         "/{slug}",
@@ -121,6 +138,15 @@ async def update_scene(
         scene_slug=scene_slug,
         payload=payload
     )
+
+@router.post("/{slug}/scenes/{scene_slug}/upload", tags=["Story"])
+async def upload_image_to_story(
+    slug: str,
+    scene_slug: str,
+    image: UploadFile | None = None,
+    service: StoryService = Depends(StoryService),
+):
+    return await service.upload_image_to_scene(slug, scene_slug, image)
 
 @router.delete("/{slug}/scenes/{scene_slug}", tags=["Scene"], dependencies=[Depends(must_story_owner)])
 async def delete_scene(
