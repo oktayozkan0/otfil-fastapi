@@ -18,3 +18,7 @@ def upload_to_s3(file, key):
 def get_from_s3(key):
     response = s3_client.get_object(Bucket=settings.aws_s3_bucket_name, Key=key)
     return response
+
+def delete_from_s3(key):
+    response = s3_client.delete_object(Bucket=settings.aws_s3_bucket_name, Key=key)
+    return response

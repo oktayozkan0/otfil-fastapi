@@ -139,8 +139,8 @@ async def update_scene(
         payload=payload
     )
 
-@router.post("/{slug}/scenes/{scene_slug}/upload", tags=["Story"])
-async def upload_image_to_story(
+@router.post("/{slug}/scenes/{scene_slug}/upload", tags=["Scene"])
+async def upload_image_to_scene(
     slug: str,
     scene_slug: str,
     image: UploadFile | None = None,

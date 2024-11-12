@@ -22,7 +22,7 @@ from stories.schemas import (
 )
 from stories.exceptions import CheckSlugsException, BeginningSceneAlreadyExistException, CannotUploadImageException
 from stories.constants import SceneTypes, ALLOWED_IMAGE_TYPES
-from s3.client import upload_to_s3
+from s3.client import upload_to_s3, get_from_s3, delete_from_s3
 
 class StoryService(BaseService):
     
@@ -108,6 +108,11 @@ class StoryService(BaseService):
             return JSONResponse({"allowed_types": ALLOWED_IMAGE_TYPES}, 500)
         key = f"{str(uuid.uuid4())}.{image.content_type.split('/')[1]}"
         try:
+            existing_img_stmt = select(Stories).where(Stories.slug==slug).options(load_only(Stories.img))
+            existing_img = await self.db.execute(existing_img_stmt)
+            instance = existing_img.scalar_one_or_none()
+            if instance:
+                delete_from_s3(instance.img)
             upload_to_s3(image.file.read(), key)
         except:
             raise CannotUploadImageException
@@ -191,6 +196,12 @@ class StoryService(BaseService):
             return JSONResponse({"allowed_types": ALLOWED_IMAGE_TYPES}, 500)
         key = f"{str(uuid.uuid4())}.{image.content_type.split('/')[1]}"
         try:
+            existing_img_stmt = select(Scenes).where(Scenes.slug==scene_slug, Scenes.story_slug==slug).options(load_only(Scenes.img))
+            existing_img = await self.db.execute(existing_img_stmt)
+            instance = existing_img.scalar_one_or_none()
+            print(instance)
+            if instance:
+                delete_from_s3(instance.img)
             upload_to_s3(image.file.read(), key)
         except:
             raise CannotUploadImageException
