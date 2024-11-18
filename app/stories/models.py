@@ -1,10 +1,8 @@
-from time import time
-from slugify import slugify
-
 from core.models import Base
 from sqlalchemy import (Boolean, Column, Float, ForeignKey, Integer, String,
                         event, UniqueConstraint, Enum)
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Mapped
+from categories.models import Categories
 from stories.constants import SceneTypes
 from utils.utils import generate_slug
 

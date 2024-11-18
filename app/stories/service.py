@@ -43,13 +43,14 @@ class StoryService(BaseService):
         """Returns a paginated list of active stories."""
         stmt = (select(Stories)
             .where(Stories.is_active == True)
-            .options(joinedload(Stories.categories).joinedload(StoryCategories.category), load_only(Stories.description, Stories.title, Stories.slug)))
+            .options(joinedload(Stories.categories), load_only(Stories.description, Stories.title, Stories.slug)))
         if categories:
             stmt = stmt.where(Stories.categories.and_(StoryCategories.category_slug.in_(categories)))
         stories = await paginate(
             self.db,
             stmt
         )
+        print()
         return stories
 
     async def list_user_stories(self, user: UserSystem):
@@ -63,7 +64,7 @@ class StoryService(BaseService):
         stmt = (select(Stories)
                 .where(Stories.is_active==True, Stories.slug==slug)
                 .options(
-                    joinedload(Stories.categories).joinedload(StoryCategories.category),
+                    joinedload(Stories.categories),
                     load_only(
                         Stories.id,Stories.slug,Stories.title,Stories.description,Stories.img
                     )
@@ -79,10 +80,10 @@ class StoryService(BaseService):
         stmt = (
             select(Stories)
             .where(Stories.slug == slug, Stories.is_active == True)
-            .options(load_only(Stories.description, Stories.title, Stories.slug))
+            .options(joinedload(Stories.categories))
         )
         result = await self.db.execute(stmt)
-        instance = result.scalar_one_or_none()
+        instance = result.unique().scalar_one_or_none()
         if not instance:
             raise NotFoundException(detail=f"Story with slug '{slug}' not found")
         return instance

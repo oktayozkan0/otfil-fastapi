@@ -13,6 +13,7 @@ class StoryCreateResponseModel(BaseModel):
     slug: str
     title: str = Field(max_length=100)
     description: str = Field(max_length=500)
+    categories: list[GetCategoriesResponse]
 
 class StoryCategoriesModel(BaseModel):
     category: GetCategoriesResponse
@@ -22,7 +23,7 @@ class StoryGetModel(StoryCreateResponseModel):
     title: str = Field(max_length=100)
     description: str = Field(max_length=500)
     img: str
-    categories: list[StoryCategoriesModel] | None = None
+    categories: list[GetCategoriesResponse] | None = None
 
 class StoryUpdateModel(BaseModel):
     title: str = Field(max_length=100)
