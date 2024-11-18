@@ -7,6 +7,7 @@ from categories.schemas import GetCategoriesResponse
 class StoryCreateModel(BaseModel):
     title: str = Field(max_length=100)
     description: str = Field(max_length=500)
+    categories: list | None = None
 
 class StoryCreateResponseModel(BaseModel):
     slug: str

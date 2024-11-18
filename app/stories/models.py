@@ -13,8 +13,6 @@ class StoryCategories(Base):
     story_slug = Column(String, ForeignKey("stories.slug"))
     category_slug = Column(String, ForeignKey("categories.slug"))
 
-    category = relationship("Categories", back_populates="stories", foreign_keys=[category_slug])
-
 class Stories(Base):
     title = Column(String(100))
     description = Column(String(500))
@@ -24,7 +22,7 @@ class Stories(Base):
     owner_id = Column(Integer, ForeignKey("users.id"))
 
     scenes = relationship("Scenes", back_populates="story", foreign_keys="Scenes.story_slug")
-    categories = relationship("StoryCategories", foreign_keys="StoryCategories.story_slug")
+    categories = relationship("Categories", secondary="storycategories", back_populates="stories")
 
 class Scenes(Base):
     text = Column(String(255), nullable=False)
