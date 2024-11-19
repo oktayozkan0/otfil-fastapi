@@ -1,5 +1,6 @@
 
 import { enmRequestType } from "../../models/enums/requestType";
+import { mdlImageUploadRequest } from "../../models/service-models/image/ImageUploadRequest";
 import { mdlCreateSceneRequest } from "../../models/service-models/scenes/CreateSceneRequest";
 import { mdlCreateSceneResponse } from "../../models/service-models/scenes/CreateSceneResponse";
 import { mdlDeleteSceneRequest } from "../../models/service-models/scenes/DeleteSceneRequest";
@@ -27,5 +28,8 @@ export module SceneService {
     }
     export async function Detail(pRequest: mdlGetSceneRequest): Promise<mdlGetSceneResponse> {
         return await GetResponse<mdlCreateSceneResponse>(enmRequestType.GET, `stories/${pRequest.story_slug}/scenes/${pRequest.slug}`);
+    }
+    export async function ImageUpload(pRequest: mdlImageUploadRequest): Promise<any> {
+        return await GetResponse<any>(enmRequestType.POST, `stories/${pRequest.story_slug}/scenes/${pRequest.scene_slug}`, pRequest.image);
     }
 }
