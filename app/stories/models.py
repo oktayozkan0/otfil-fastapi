@@ -1,10 +1,8 @@
-from time import time
-from slugify import slugify
-
 from core.models import Base
 from sqlalchemy import (Boolean, Column, Float, ForeignKey, Integer, String,
                         event, UniqueConstraint, Enum)
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import relationship, Mapped
+from categories.models import Categories
 from stories.constants import SceneTypes
 from utils.utils import generate_slug
 
@@ -12,8 +10,6 @@ from utils.utils import generate_slug
 class StoryCategories(Base):
     story_slug = Column(String, ForeignKey("stories.slug"))
     category_slug = Column(String, ForeignKey("categories.slug"))
-
-    category = relationship("Categories", back_populates="stories", foreign_keys=[category_slug])
 
 class Stories(Base):
     title = Column(String(100))
@@ -24,7 +20,7 @@ class Stories(Base):
     owner_id = Column(Integer, ForeignKey("users.id"))
 
     scenes = relationship("Scenes", back_populates="story", foreign_keys="Scenes.story_slug")
-    categories = relationship("StoryCategories", foreign_keys="StoryCategories.story_slug")
+    categories = relationship("Categories", secondary="storycategories", back_populates="stories")
 
 class Scenes(Base):
     text = Column(String(255), nullable=False)

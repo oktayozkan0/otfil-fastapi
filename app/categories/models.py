@@ -8,4 +8,4 @@ class Categories(Base):
     title = Column(String(50))
     slug = Column(String(50), unique=True)
 
-    stories = relationship("StoryCategories", back_populates="category", foreign_keys="StoryCategories.category_slug")
+    stories = relationship("Stories", secondary="storycategories", back_populates="categories")

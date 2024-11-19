@@ -3,13 +3,14 @@ from datetime import datetime
 from fastapi import HTTPException, status, UploadFile
 from fastapi.responses import JSONResponse
 from fastapi_pagination.ext.sqlalchemy import paginate
-from sqlalchemy import select, update
+from sqlalchemy import select, update, or_
 from sqlalchemy.orm import load_only, joinedload
 from sqlalchemy.exc import IntegrityError
 
 from auth.schemas import UserSystem
 from core.exceptions import NotFoundException
 from core.services import BaseService
+from categories.models import Categories
 from stories.models import Scenes, Stories, Choices, StoryCategories
 from stories.schemas import (
     SceneCreateRequest,
@@ -22,13 +23,18 @@ from stories.schemas import (
 )
 from stories.exceptions import CheckSlugsException, BeginningSceneAlreadyExistException, CannotUploadImageException
 from stories.constants import SceneTypes, ALLOWED_IMAGE_TYPES
-from s3.client import upload_to_s3, get_from_s3, delete_from_s3
+from s3.client import upload_to_s3, delete_from_s3
 
 class StoryService(BaseService):
     
     async def create_story(self, payload: StoryCreateModel, user: UserSystem):
         """Creates a new story."""
-        data = Stories(**payload.model_dump(), owner_id=user.id, is_active=True)
+        data = Stories(**payload.model_dump(exclude={"categories"}), owner_id=user.id, is_active=True)
+        if payload.categories:
+            stmt = select(Categories).where(or_(*[Categories.slug==category for category in payload.categories]))
+            result = await self.db.execute(stmt)
+            instances = result.scalars().all()
+            data.categories = instances
         self.db.add(data)
         await self.db.commit()
         return data
@@ -37,13 +43,14 @@ class StoryService(BaseService):
         """Returns a paginated list of active stories."""
         stmt = (select(Stories)
             .where(Stories.is_active == True)
-            .options(joinedload(Stories.categories).joinedload(StoryCategories.category), load_only(Stories.description, Stories.title, Stories.slug)))
+            .options(joinedload(Stories.categories), load_only(Stories.description, Stories.title, Stories.slug)))
         if categories:
             stmt = stmt.where(Stories.categories.and_(StoryCategories.category_slug.in_(categories)))
         stories = await paginate(
             self.db,
             stmt
         )
+        print()
         return stories
 
     async def list_user_stories(self, user: UserSystem):
@@ -57,7 +64,7 @@ class StoryService(BaseService):
         stmt = (select(Stories)
                 .where(Stories.is_active==True, Stories.slug==slug)
                 .options(
-                    joinedload(Stories.categories).joinedload(StoryCategories.category),
+                    joinedload(Stories.categories),
                     load_only(
                         Stories.id,Stories.slug,Stories.title,Stories.description,Stories.img
                     )
@@ -73,10 +80,10 @@ class StoryService(BaseService):
         stmt = (
             select(Stories)
             .where(Stories.slug == slug, Stories.is_active == True)
-            .options(load_only(Stories.description, Stories.title, Stories.slug))
+            .options(joinedload(Stories.categories))
         )
         result = await self.db.execute(stmt)
-        instance = result.scalar_one_or_none()
+        instance = result.unique().scalar_one_or_none()
         if not instance:
             raise NotFoundException(detail=f"Story with slug '{slug}' not found")
         return instance
