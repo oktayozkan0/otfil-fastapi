@@ -1,45 +1,43 @@
-import { memo, useCallback, useEffect, useState } from "react";
+import { memo, useEffect, useState } from "react";
 import { useMutation, useQuery } from "react-query";
-import { Badge, Button, Flex, Form, Input, Skeleton, Spin } from "antd";
-import { useTranslation } from "react-i18next";
-
+import { Button, Form, Input, Modal, Spin, Upload } from "antd";
+import { UploadOutlined } from "@ant-design/icons";
+import Cropper from "react-easy-crop";
 import { toast } from "react-toastify";
-import { ObjectHelper } from "../../utils/ObjectHelper";
-import TextArea from "antd/es/input/TextArea";
+import { RcFile } from "antd/lib/upload";
 import { mdlGetStoryRequest } from "../../models/service-models/stories/GetStoryRequest";
 import { StoryService } from "../../services/stories";
 import { mdlCreateStoryRequest } from "../../models/service-models/stories/CreateStoryRequest";
 import { mdlUpdateStoryRequest } from "../../models/service-models/stories/UpdateStoryRequest";
+import { mdlImageUploadRequest } from "../../models/service-models/image/ImageUploadRequest";
+import { getCroppedImg } from "../../utils/cropImage";
+import TextArea from "antd/es/input/TextArea";
 
 export type StoryDetailProps = {
     slug?: string;
     callback?: Function;
-}
-
+};
 
 export const StoryDetail = memo(function StoryDetail(props: StoryDetailProps) {
-    const { t } = useTranslation();
     const [form] = Form.useForm();
+    const [imageFile, setImageFile] = useState<RcFile | null>(null);
+    const [previewImage, setPreviewImage] = useState<string | null>(null);
+    const [cropModalVisible, setCropModalVisible] = useState(false);
+    const [crop, setCrop] = useState({ x: 0, y: 0 });
+    const [zoom, setZoom] = useState(1);
+    const [croppedAreaPixels, setCroppedAreaPixels] = useState<null | any>(null);
 
     useEffect(() => {
         if (!props.slug && form) {
-            form.resetFields(); // ID yoksa formu sıfırla
+            form.resetFields();
         }
     }, [props.slug, form]);
 
-
-
-    const {
-        data,
-        isLoading,
-        isError,
-        isFetched,
-        refetch: getStoryDetail
-    } = useQuery(
+    const { data, isLoading, isFetched } = useQuery(
         ["getStoryDetail", props.slug],
         () => {
             if (props.slug) {
-                var request: mdlGetStoryRequest = { slug: props.slug };
+                const request: mdlGetStoryRequest = { slug: props.slug };
                 return StoryService.Detail(request);
             }
         },
@@ -50,74 +48,136 @@ export const StoryDetail = memo(function StoryDetail(props: StoryDetailProps) {
             enabled: !!props.slug,
         }
     );
+
     useEffect(() => {
         if (data && form) {
             form.setFieldsValue({ title: data?.title, description: data?.description });
         }
     }, [data, form]);
 
-    const { mutateAsync: saveStory, isLoading: mutateLoading, data: mutateData } = useMutation(
-        (data: mdlCreateStoryRequest & mdlUpdateStoryRequest) => props.slug ? StoryService.Update(data as mdlUpdateStoryRequest) : StoryService.Create(data as mdlCreateStoryRequest),
+    const { mutateAsync: saveStory, isLoading: mutateLoading } = useMutation(
+        (data: mdlCreateStoryRequest & mdlUpdateStoryRequest) =>
+            props.slug
+                ? StoryService.Update(data as mdlUpdateStoryRequest)
+                : StoryService.Create(data as mdlCreateStoryRequest),
         {
-            onMutate(variables) {
-                variables.slug = props.slug!
-            },
-            onError: error => {
+            onError: (error) => {
                 console.log(error);
+                toast.error("An error occurred while saving the story.");
             },
-            onSuccess(data, variables, context) {
-                if (data) {
-                    toast.success(t("common.success"));
-                    form.resetFields();
-                    props.callback && props.callback();
-                }
-                else {
-                    toast.error(ObjectHelper.getErrorMessage([]));
+            onSuccess: async (data) => {
+                if (data && data.slug) {
+                    toast.success("Story saved successfully.");
+                    if (imageFile) {
+                        uploadCroppedImage(data.slug);
+                    }
                 }
             },
         }
     );
 
+    const handleImageUpload = (file: RcFile) => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            if (e.target?.result) {
+                setPreviewImage(e.target.result as string);
+                setCropModalVisible(true);
+            }
+        };
+        reader.readAsDataURL(file);
+        setImageFile(file);
+        return false; // Prevent automatic upload
+    };
+
+    const onCropComplete = (croppedArea: any, croppedAreaPixels: any) => {
+        setCroppedAreaPixels(croppedAreaPixels);
+    };
+
+    const uploadCroppedImage = async (storySlug: string) => {
+        if (!imageFile || !croppedAreaPixels || !previewImage) return;
+
+        try {
+            const croppedBlob = await getCroppedImg(previewImage, croppedAreaPixels);
+            debugger
+            const formData = new FormData();
+            formData.append("image", croppedBlob, imageFile.name);
+
+            const request: mdlImageUploadRequest = {
+                image: formData,
+                story_slug: storySlug,
+            };
+
+            await StoryService.ImageUpload(request);
+            toast.success("Image uploaded successfully.");
+        } catch (error) {
+            console.error("Error uploading image:", error);
+            toast.error("Error uploading the image.");
+        }
+    };
+
+    const handleCropConfirm = async () => {
+        setCropModalVisible(false);
+    };
+
     return (
         <>
-            {
-                !isLoading
-                &&
-                ((props.slug && isFetched) || !props.slug)
-                &&
+            {!isLoading && ((props.slug && isFetched) || !props.slug) && (
                 <Spin spinning={mutateLoading}>
                     <Form
                         form={form}
                         initialValues={{ description: data?.description, title: data?.title }}
                         name="Story-form"
                         layout="vertical"
-                        onFinish={async (values) => saveStory(values)}
+                        onFinish={(values) => saveStory(values)}
                         autoComplete="off"
                     >
-                        <Form.Item<mdlUpdateStoryRequest | mdlCreateStoryRequest>
-                            label={t("stories.title")}
+                        <Form.Item
+                            label="Title"
                             name="title"
-                            rules={[{ required: true, message: t("common.required") }]}
-                        >
+                            rules={[{ required: true, message: "Title is required." }]}>
                             <Input />
                         </Form.Item>
-                        <Form.Item<mdlUpdateStoryRequest | mdlUpdateStoryRequest>
-                            label={t("stories.description")}
+                        <Form.Item
+                            label="Description"
                             name="description"
-                            rules={[{ required: true, message: t("common.required") }]}
-
-                        >
+                            rules={[{ required: true, message: "Description is required." }]}>
                             <TextArea rows={4} />
                         </Form.Item>
-
+                        <Form.Item label="Upload Image">
+                            <Upload beforeUpload={handleImageUpload} maxCount={1}>
+                                <Button icon={<UploadOutlined />}>Select Image</Button>
+                            </Upload>
+                        </Form.Item>
                         <Form.Item>
-                            <Flex align={"center"} justify="flex-end">
-                                <Button type="primary" htmlType="submit">{t("common.save")}</Button>
-                            </Flex>
+                            <Button type="primary" htmlType="submit">
+                                Save
+                            </Button>
                         </Form.Item>
                     </Form>
                 </Spin>
-            }
+            )}
+
+            <Modal
+                visible={cropModalVisible}
+                onCancel={() => setCropModalVisible(false)}
+                onOk={handleCropConfirm}
+                title="Crop Image"
+                okText="Crop & Save"
+            >
+                <div style={{ position: "relative", width: "100%", height: 400 }}>
+                    {previewImage && (
+                        <Cropper
+                            image={previewImage}
+                            crop={crop}
+                            zoom={zoom}
+                            aspect={16 / 9}
+                            onCropChange={setCrop}
+                            onZoomChange={setZoom}
+                            onCropComplete={onCropComplete}
+                        />
+                    )}
+                </div>
+            </Modal>
         </>
-    )
-})
+    );
+});

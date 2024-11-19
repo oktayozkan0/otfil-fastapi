@@ -7,6 +7,7 @@ import { mdlGetStoriesRequest } from "../../models/service-models/stories/GetSto
 import { mdlGetStoriesResponse } from "../../models/service-models/stories/GetStoriesResponse";
 import { mdlGetStoryRequest } from "../../models/service-models/stories/GetStoryRequest";
 import { mdlGetStoryResponse } from "../../models/service-models/stories/GetStoryResponse";
+import { mdlImageUploadRequest } from "../../models/service-models/image/ImageUploadRequest";
 import { mdlUpdateStoryRequest } from "../../models/service-models/stories/UpdateStoryRequest";
 import { mdlUpdateStoryResponse } from "../../models/service-models/stories/UpdateStoryResponse";
 import { GetResponse } from "../baseService";
@@ -27,6 +28,10 @@ export module StoryService {
     }
     export async function Delete(pRequest: mdlDeleteStoryRequest): Promise<mdlDeleteStoryResponse> {
         return await GetResponse<mdlDeleteStoryResponse>(enmRequestType.DELETE, `stories/${pRequest.slug}`);
+    }
+    export async function ImageUpload(pRequest: mdlImageUploadRequest): Promise<any> {
+        console.log(pRequest)
+        return await GetResponse<any>(enmRequestType.POST, `stories/${pRequest.story_slug}`, pRequest.image);
     }
 
 }

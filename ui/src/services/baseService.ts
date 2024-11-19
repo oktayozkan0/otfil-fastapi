@@ -34,6 +34,7 @@ export async function GetResponse<T>(
     const headers = {
         Authorization: `Bearer ${token}`,  // Bearer token olarak ekleniyor
     };
+    console.log(headers)
 
     try {
         let response: AxiosResponse<T>;
@@ -52,9 +53,18 @@ export async function GetResponse<T>(
                 break;
             case enmRequestType.POST:
                 try {
-                    response = await axios.post<T>(apiUrl, requestObj, {
-                        headers,
-                    });
+                    const isFormData = requestObj instanceof FormData;
+
+                    response = await axios.post<T>(
+                        apiUrl,
+                        isFormData ? requestObj : JSON.stringify(requestObj),
+                        {
+                            headers: {
+                                ...headers,
+                                ...(isFormData ? {} : { "Content-Type": "application/json" }),
+                            },
+                        }
+                    );
                 } catch (error: any) {
                     toast.error(error.response?.data?.errors?.at(0));
                     return generateFakeResponse<T>(requestType); // Sahte veri döndür
