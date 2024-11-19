@@ -28,5 +28,8 @@ export module StoryService {
     export async function Delete(pRequest: mdlDeleteStoryRequest): Promise<mdlDeleteStoryResponse> {
         return await GetResponse<mdlDeleteStoryResponse>(enmRequestType.DELETE, `stories/${pRequest.slug}`);
     }
+    export async function Me(pRequest: mdlGetStoriesRequest): Promise<mdlGetStoriesResponse> {
+        return await GetResponse<mdlGetStoriesResponse>(enmRequestType.GET, `stories/me?limit=${pRequest.limit}&offset=${pRequest.offset}`);
+    }
 
 }

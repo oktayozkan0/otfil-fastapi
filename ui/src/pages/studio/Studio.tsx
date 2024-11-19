@@ -1,12 +1,7 @@
 import React, { useState } from 'react'
-import { useEffect } from "react";
-import { useAppDispatch } from "../../store/Hooks";
-import { toUnLoading } from "../../store/SiteSlice";
 import { useTranslation } from "react-i18next";
 import { PageHeaderSection } from "../../components/common/PageHeadSection";
 import { Story } from '../../models/domain/story';
-import { mdlGetStoriesRequest } from '../../models/service-models/stories/GetStoriesRequest';
-import { StoryService } from '../../services/stories';
 import { HeaderButton } from '../../models/ui-models/HeaderButton';
 import { faPlus } from '@fortawesome/free-solid-svg-icons';
 import { SFModal } from '../../components/elements/SFModal';
@@ -16,7 +11,6 @@ import { StoryDetail } from '../../components/studio/StoryDetail';
 const Studio = () => {
     const { t } = useTranslation();
     const [openDetailModal, setOpenDetailModal] = useState<boolean>(false);
-    const [restart, setRestart] = useState<boolean>(false);
 
     const [selectedStory, setSelectedStory] = useState<Story>();
 
@@ -46,7 +40,8 @@ const Studio = () => {
                             buttons={getButtons()}
                         />
                     </div>
-                    <StoryList studio={true} restart={restart} />
+
+                    {!openDetailModal && <StoryList studio={true} />}
 
                 </div>
             </div>
@@ -54,7 +49,7 @@ const Studio = () => {
                 width={window.innerWidth * 50 / 100}
                 open={openDetailModal}
                 toggler={() => { setOpenDetailModal(!openDetailModal) }}
-                body={<StoryDetail slug={selectedStory?.slug} callback={() => { setOpenDetailModal(false); setRestart(!restart) }} />}
+                body={<StoryDetail slug={selectedStory?.slug} callback={() => { setOpenDetailModal(false) }} />}
                 title={t("studio.story.detailTitle")}
             />
         </div>

@@ -1,5 +1,6 @@
 export enum routeContants {
   STORIES = "/",
+  HOME = "/home",
   LOGIN = "/login",
   REGISTER = "/register",
   STUDIO = "/studio",

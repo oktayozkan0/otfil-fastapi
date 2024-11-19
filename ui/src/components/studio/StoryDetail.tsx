@@ -95,17 +95,16 @@ export const StoryDetail = memo(function StoryDetail(props: StoryDetailProps) {
                         autoComplete="off"
                     >
                         <Form.Item<mdlUpdateStoryRequest | mdlCreateStoryRequest>
-                            label={t("stories.title")}
+                            label={t("stories.detail.title")}
                             name="title"
                             rules={[{ required: true, message: t("common.required") }]}
                         >
                             <Input />
                         </Form.Item>
                         <Form.Item<mdlUpdateStoryRequest | mdlUpdateStoryRequest>
-                            label={t("stories.description")}
+                            label={t("stories.detail.description")}
                             name="description"
                             rules={[{ required: true, message: t("common.required") }]}
-
                         >
                             <TextArea rows={4} />
                         </Form.Item>
