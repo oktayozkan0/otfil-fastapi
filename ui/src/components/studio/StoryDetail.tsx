@@ -98,9 +98,8 @@ export const StoryDetail = memo(function StoryDetail(props: StoryDetailProps) {
 
         try {
             const croppedBlob = await getCroppedImg(previewImage, croppedAreaPixels);
-            debugger
             const formData = new FormData();
-            formData.append("image", croppedBlob, imageFile.name);
+            formData.append("image", croppedBlob);
 
             const request: mdlImageUploadRequest = {
                 image: formData,
@@ -144,7 +143,7 @@ export const StoryDetail = memo(function StoryDetail(props: StoryDetailProps) {
                             <TextArea rows={4} />
                         </Form.Item>
                         <Form.Item label="Upload Image">
-                            <Upload beforeUpload={handleImageUpload} maxCount={1}>
+                            <Upload beforeUpload={handleImageUpload} maxCount={1} accept="image/jpeg, image/png, image/gif">
                                 <Button icon={<UploadOutlined />}>Select Image</Button>
                             </Upload>
                         </Form.Item>

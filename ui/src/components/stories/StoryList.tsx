@@ -27,7 +27,6 @@ const StoryList = ({ studio }: StoryListProps) => {
     const fetchStories = async (page: number, pageSize: number) => {
         setLoading(true);
         const request = new mdlGetStoriesRequest(pageSize, page);
-        debugger
         try {
             const response = studio
                 ? await StoryService.Me(request)

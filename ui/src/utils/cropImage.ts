@@ -1,4 +1,9 @@
-export const getCroppedImg = async (imageSrc: string, croppedAreaPixels: any): Promise<Blob> => {
+import { RcFile } from "antd/lib/upload/interface";
+
+export const getCroppedImg = async (
+    imageSrc: string,
+    croppedAreaPixels: any
+): Promise<RcFile> => {
     const image = new Image();
     image.src = imageSrc;
 
@@ -48,5 +53,12 @@ export const getCroppedImg = async (imageSrc: string, croppedAreaPixels: any): P
         throw new Error("Failed to generate blob from canvas");
     }
 
-    return blob;
+    // Blob'u RcFile olarak dönüştür
+    const fileName = "cropped-image.jpeg"; // Varsayılan dosya adı
+    const rcFile = new File([blob], fileName, { type: "image/jpeg" }) as RcFile;
+
+    // RcFile için uid ekle (antd upload bileşeni için gerekebilir)
+    rcFile.uid = `${Date.now()}`; // Benzersiz bir UID oluştur
+
+    return rcFile;
 };

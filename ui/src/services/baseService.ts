@@ -4,111 +4,69 @@ import { toast } from "react-toastify"; // Toast bildirimlerini içe aktar
 
 // Sahte veri oluşturma fonksiyonu
 const generateFakeResponse = <T>(requestType: enmRequestType): T => {
-    switch (requestType) {
-        case enmRequestType.GET:
-            return { message: "Sahte GET yanıtı" } as unknown as T; // Örnek sahte veri
-        case enmRequestType.POST:
-            return { message: "Sahte POST yanıtı" } as unknown as T; // Örnek sahte veri
-        case enmRequestType.PUT:
-            return { message: "Sahte PUT yanıtı" } as unknown as T; // Örnek sahte veri
-        case enmRequestType.DELETE:
-            return { message: "Sahte DELETE yanıtı" } as unknown as T; // Örnek sahte veri
-        case enmRequestType.PATCH:
-            return { message: "Sahte PATCH yanıtı" } as unknown as T; // Örnek sahte veri
-        default:
-            return {} as T; // Geçersiz tür için boş bir nesne döndür
-    }
+    const fakeMessages: any = {
+        [enmRequestType.GET]: "Sahte GET yanıtı",
+        [enmRequestType.POST]: "Sahte POST yanıtı",
+        [enmRequestType.PUT]: "Sahte PUT yanıtı",
+        [enmRequestType.DELETE]: "Sahte DELETE yanıtı",
+        [enmRequestType.PATCH]: "Sahte PATCH yanıtı",
+    };
+    return { message: fakeMessages[requestType] || "Sahte yanıt" } as unknown as T;
 };
 
 export async function GetResponse<T>(
     requestType: enmRequestType,
     requestUrl: string,
-    requestObj?: object
+    requestObj?: any,
+    isFormData: boolean = false
 ): Promise<T> {
-    let apiUrl = "http://localhost:8000/api/v1/" + requestUrl;
+    const apiUrl = `http://localhost:8000/api/v1/${requestUrl}`;
+    const token = localStorage.getItem("token");
 
-    // Local storage veya başka bir kaynaktan token'ı al
-    const token = localStorage.getItem('token'); // Token'ı buradan alıyorsun
-
-    // Header'ı oluştur, Authorization ekleyerek
     const headers = {
-        Authorization: `Bearer ${token}`,  // Bearer token olarak ekleniyor
+        Authorization: `Bearer ${token}`,
+        "Content-Type": isFormData ? "multipart/form-data" : "application/json",
     };
-    console.log(headers)
 
     try {
         let response: AxiosResponse<T>;
 
         switch (requestType) {
             case enmRequestType.GET:
-                try {
-                    response = await axios.get<T>(apiUrl, {
-                        params: requestObj,
-                        headers,
-                    });
-                } catch (error: any) {
-                    toast.error(error.response?.data?.errors?.at(0));
-                    return generateFakeResponse<T>(requestType); // Sahte veri döndür
-                }
+                response = await axios.get<T>(apiUrl, {
+                    params: requestObj,
+                    headers,
+                });
                 break;
             case enmRequestType.POST:
-                try {
-                    const isFormData = requestObj instanceof FormData;
-
-                    response = await axios.post<T>(
-                        apiUrl,
-                        isFormData ? requestObj : JSON.stringify(requestObj),
-                        {
-                            headers: {
-                                ...headers,
-                                ...(isFormData ? {} : { "Content-Type": "application/json" }),
-                            },
-                        }
-                    );
-                } catch (error: any) {
-                    toast.error(error.response?.data?.errors?.at(0));
-                    return generateFakeResponse<T>(requestType); // Sahte veri döndür
-                }
+                response = await axios.post<T>(
+                    apiUrl,
+                    isFormData ? requestObj : JSON.stringify(requestObj),
+                    { headers }
+                );
                 break;
             case enmRequestType.PUT:
-                try {
-                    response = await axios.put<T>(apiUrl, requestObj, {
-                        headers,
-                    });
-                } catch (error: any) {
-                    toast.error(error.response?.data?.errors?.at(0));
-                    return generateFakeResponse<T>(requestType); // Sahte veri döndür
-                }
+                response = await axios.put<T>(apiUrl, requestObj, { headers });
                 break;
             case enmRequestType.DELETE:
-                try {
-                    response = await axios.delete<T>(apiUrl, {
-                        data: requestObj,
-                        headers,
-                    });
-                } catch (error: any) {
-                    toast.error(error.response?.data?.errors?.at(0));
-                    return generateFakeResponse<T>(requestType); // Sahte veri döndür
-                }
+                response = await axios.delete<T>(apiUrl, {
+                    data: requestObj,
+                    headers,
+                });
                 break;
             case enmRequestType.PATCH:
-                try {
-                    response = await axios.patch<T>(apiUrl, requestObj, {
-                        headers,
-                    });
-                } catch (error: any) {
-                    toast.error(error.response?.data?.errors?.at(0));
-                    return generateFakeResponse<T>(requestType); // Sahte veri döndür
-                }
+                response = await axios.patch<T>(apiUrl, requestObj, { headers });
                 break;
             default:
                 toast.error("Geçersiz istek türü");
-                return generateFakeResponse<T>(requestType); // Sahte veri döndür
+                return generateFakeResponse<T>(requestType);
         }
 
         return response.data;
-    } catch (error: any) {
-        toast.error("İstek sırasında bir hata oluştu: " + error.response?.data?.errors?.at(0));
-        return generateFakeResponse<T>(enmRequestType.GET); // Sahte veri döndür
+    } catch (error: unknown) {
+        const errorMessage =
+            (error as any)?.response?.data?.errors?.[0] || "Bilinmeyen bir hata oluştu.";
+        toast.error(`İstek sırasında bir hata oluştu: ${errorMessage}`);
+        return generateFakeResponse<T>(requestType); // Sahte veri döndür
     }
 }

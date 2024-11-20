@@ -33,8 +33,7 @@ export module StoryService {
         return await GetResponse<mdlGetStoriesResponse>(enmRequestType.GET, `stories/me?limit=${pRequest.limit}&offset=${pRequest.offset}`);
     }
     export async function ImageUpload(pRequest: mdlImageUploadRequest): Promise<any> {
-        console.log(pRequest)
-        return await GetResponse<any>(enmRequestType.POST, `stories/${pRequest.story_slug}`, pRequest.image);
+        return await GetResponse<any>(enmRequestType.POST, `stories/${pRequest.story_slug}/upload`, pRequest.image, true);
     }
 
 }
