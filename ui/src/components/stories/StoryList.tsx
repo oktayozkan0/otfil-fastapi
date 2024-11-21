@@ -47,6 +47,7 @@ const StoryList = ({ studio }: StoryListProps) => {
         setCurrentPage(page);
     };
 
+
     return (
         <div style={{ padding: '20px' }}>
             <Spin spinning={loading}>
