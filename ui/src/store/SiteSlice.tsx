@@ -5,6 +5,7 @@ import { enmExportStatus } from "../models/enums/ExportStatus";
 import { mdlPDFRendererProps } from "../models/ui-models/PDFRendererProps";
 import { enmPdfExportType } from "../models/enums/PdfExportType";
 import { mdlUser } from "../models/domain/user";
+import { mdlSettings } from "../models/ui-models/Settings";
 
 interface IinitialState {
   user: mdlUser | undefined;
@@ -17,6 +18,7 @@ interface IinitialState {
   pdfExportObject: mdlPDFRendererProps | undefined;
   exportStatus: enmExportStatus;
   printStatus: enmExportStatus;
+  settings: mdlSettings
 }
 
 const initialState: IinitialState = {
@@ -39,7 +41,11 @@ const initialState: IinitialState = {
       : "en",
   exportStatus: enmExportStatus.DONE,
   pdfExportObject: undefined,
-  printStatus: enmExportStatus.DONE
+  printStatus: enmExportStatus.DONE,
+  settings:
+    !InputHelper.isNullOrUndefinedOrEmpty(CookieManager.get("settings"))
+      ? CookieManager.get("settings")
+      : undefined,
 };
 
 const siteSlice = createSlice({
@@ -49,6 +55,11 @@ const siteSlice = createSlice({
     setUser: (state = initialState, action) => {
       state.user = action.payload as mdlUser;
       CookieManager.set("user", JSON.stringify(state.user), 0, 6);
+      return state;
+    },
+    setSettings: (state = initialState, action) => {
+      state.settings = action.payload as mdlSettings;
+      CookieManager.set("settings", JSON.stringify(state.settings), 0, 6);
       return state;
     },
     logout: (state) => {
@@ -115,5 +126,6 @@ export const {
   logout,
   setLanguage,
   setPdfExportObject,
+  setSettings
 } = siteSlice.actions;
 export default siteSlice.reducer;

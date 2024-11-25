@@ -36,16 +36,7 @@ const GeneralLayout = () => {
 
   return (
     <>
-      <div className="nk-app-root">
-        <div className="nk-main">
-          <div className="nk-wrap">
-            <HeaderMenu />
-            <Outlet />
-          </div>
-        </div>
-        <Footer />
-      </div>
-      <div id="backdropper" className="modal-backdrop fade hidden"></div>
+      <Outlet />
     </>
   );
 };
