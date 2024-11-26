@@ -1,113 +1,80 @@
-import React, { useEffect, useState } from 'react'
-import { Story } from '../../models/domain/story'
+import React, { useState, useEffect } from 'react';
+import { Card, Row, Col, Pagination, Spin, message } from 'antd';
+import { Story } from '../../models/domain/story';
 import { mdlGetStoriesRequest } from '../../models/service-models/stories/GetStoriesRequest';
 import { StoryService } from '../../services/stories';
-import { toUnLoading } from '../../store/SiteSlice';
-import { useAppDispatch } from '../../store/Hooks';
 import { useTranslation } from 'react-i18next';
 
+const { Meta } = Card;
 
 export type StoryListProps = {
     studio: boolean;
-    restart?: boolean
-}
+};
 
-
-const StoryList = (props: StoryListProps) => {
+const StoryList = ({ studio }: StoryListProps) => {
     const [storyList, setStoryList] = useState<Story[]>([]);
-    const dispatch = useAppDispatch();
+    const [totalStories, setTotalStories] = useState(0);
+    const [currentPage, setCurrentPage] = useState(1);
+    const [loading, setLoading] = useState(false);
     const { t } = useTranslation();
 
+    const pageSize = 10;
 
     useEffect(() => {
-        getStories();
-    }, [props.restart]);
+        fetchStories(currentPage, pageSize);
+    }, [currentPage]);
 
-    const getStories = async () => {
-        var request = new mdlGetStoriesRequest(10, 0);
-        var response = await StoryService.List(request);
-        if (response != null && response.items != null)
-            setStoryList(response.items)
-        dispatch(toUnLoading());
-    }
+    const fetchStories = async (page: number, pageSize: number) => {
+        setLoading(true);
+        const request = new mdlGetStoriesRequest(pageSize, page);
+        try {
+            const response = studio
+                ? await StoryService.Me(request)
+                : await StoryService.List(request);
+
+            if (response?.items) {
+                setStoryList(response.items);
+                setTotalStories(response.total || 0);
+            }
+        } catch (error) {
+            message.error(t('errorLoadingStories') || 'Error loading stories');
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    const handlePaginationChange = (page: number) => {
+        setCurrentPage(page);
+    };
+
+
     return (
-        <div className="game-items w-full">
-            {!props.studio && storyList.map((story, index) => (
-                <div key={index} className="item">
-                    <div className="back">
-                        <div className="image-area">
-                            <a href={`/story/${story.slug}`} >
-                                <img src={`http://localhost:8000${story.img}`} alt={story.title} className="game-image" />
-                                <>
-                                    <button
-                                        key={index}
-                                        className="play"
-                                    >
-                                        <code>{t("story.startStory")}</code>
-                                    </button>
-                                </>
-                            </a>
-                        </div>
-                    </div>
-                    <div className="front">
-                        <div className="image-area">
-                            <img src={`http://localhost:8000${story.img}`} alt={story.title} className="game-image" />
-                            <div className="game-info">
-                                {/* <span className="game-match">%99 Match</span>
-                                <span className="game-point">3/10</span> */}
-                            </div>
-                        </div>
-                        <div className="info-area">
-                            <div className="game-details">
-                                <code className="game-name">{story.title}</code>
-                            </div>
-                            {/* <div className="game-detail-info">
-                                <span className="game-author flex gap-2">
-                                    <img src={`http://localhost:8000${story.img}`} width="20px" height="20px" className="rounded" />
-                                    <span>{"Ömer Süt"}</span>
-                                </span>
-                                <div className="flex gap-2 justify-beetween">
-                                    <span className="game-views">111 oynanma</span>
-                                    <span className="game-date"> . 1 gün önce</span>
-                                </div>
-                            </div> */}
-                        </div>
-                    </div>
-                </div>
-            ))}
-            {props.studio && storyList.map((story, index) => (
-                <div key={index} className="item studio">
-                    <div className="back">
-                        <div className="image-area">
-                            <a href={`/edit/${story.slug}`} >
-                                <img src={`http://localhost:8000${story.img}`} alt={story.title} className="game-image" />
-                                <>
-                                    <button
-                                        key={index}
-                                        className="play"
-                                    >
-                                        <code>{t("story.editStory")}</code>
-                                    </button>
-                                </>
-                            </a>
-                        </div>
-                    </div>
-                    <div className="front">
-                        <div className="image-area">
-                            <div className="game-info">
-                            </div>
-                        </div>
-                        <div className="info-area">
-                            <div className="game-details">
-                                <code className="game-name">{story.title}</code>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-            ))}
+        <div style={{ padding: '20px' }}>
+            <Spin spinning={loading}>
+                <Row gutter={[16, 16]}>
+                    {storyList.map((story) => (
+                        <Col key={story.id} xs={24} sm={12} md={8} lg={6}>
+                            <Card
+                                hoverable
+                                cover={<img alt={story.title} src={`http://localhost:8000${story.img}`} />}
+                            >
+                                <Meta title={story.title} description={story.description || t('noDescription')} />
+                            </Card>
+                        </Col>
+                    ))}
+                </Row>
+            </Spin>
+            <div style={{ textAlign: 'center', marginTop: '20px' }}>
+                <Pagination
+                    current={currentPage}
+                    pageSize={pageSize}
+                    total={totalStories}
+                    onChange={handlePaginationChange}
+                    showSizeChanger={false}
+                />
+            </div>
         </div>
-    )
-}
+    );
+};
 
-export default StoryList
+export default StoryList;

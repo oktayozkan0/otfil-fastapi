@@ -6,6 +6,7 @@ import { routeContants } from "../utils/RouteConstants";
 
 export const PublicRoutes = [
   { path: routeContants.STORIES, Component: <Stories /> },
+  { path: routeContants.HOME, Component: <Stories /> },
   { path: routeContants.LOGIN, Component: <Login /> },
   { path: routeContants.REGISTER, Component: <Register /> },
   { path: routeContants.STORY, Component: <StoryPage /> }
