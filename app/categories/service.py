@@ -11,7 +11,11 @@ from core.services import BaseService
 
 
 class CategoryService(BaseService):
-    async def create_category(self, payload: CreateCategoryRequest, user: UserSystem):
+    async def create_category(
+            self,
+            payload: CreateCategoryRequest,
+            user: UserSystem
+    ):
         if user.user_type != UserTypes.ADMIN:
             raise NotAllowedException
         slug = slugify(payload.title)
@@ -19,9 +23,14 @@ class CategoryService(BaseService):
         self.db.add(data)
         await self.db.commit()
         return data
-    
+
     async def get_categories(self):
-        stmt = select(Categories).options(load_only(Categories.slug,Categories.title))
+        stmt = select(Categories).options(
+            load_only(
+                Categories.slug,
+                Categories.title
+            )
+        )
         result = await self.db.execute(stmt)
         instance = result.scalars().all()
         return instance
