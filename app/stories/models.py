@@ -1,8 +1,7 @@
 from core.models import Base
 from sqlalchemy import (Boolean, Column, Float, ForeignKey, Integer, String,
                         event, UniqueConstraint, Enum)
-from sqlalchemy.orm import relationship, Mapped
-from categories.models import Categories
+from sqlalchemy.orm import relationship
 from stories.constants import SceneTypes
 from utils.utils import generate_slug
 
@@ -10,6 +9,7 @@ from utils.utils import generate_slug
 class StoryCategories(Base):
     story_slug = Column(String, ForeignKey("stories.slug"))
     category_slug = Column(String, ForeignKey("categories.slug"))
+
 
 class Stories(Base):
     title = Column(String(100))
@@ -19,8 +19,18 @@ class Stories(Base):
     is_active = Column(Boolean, default=False)
     owner_id = Column(Integer, ForeignKey("users.id"))
 
-    scenes = relationship("Scenes", back_populates="story", foreign_keys="Scenes.story_slug")
-    categories = relationship("Categories", secondary="storycategories", back_populates="stories")
+    scenes = relationship(
+        "Scenes",
+        back_populates="story",
+        foreign_keys="Scenes.story_slug"
+    )
+    categories = relationship(
+        "Categories",
+        secondary="storycategories",
+        back_populates="stories"
+    )
+    user = relationship("Users", back_populates="stories")
+
 
 class Scenes(Base):
     text = Column(String(255), nullable=False)
@@ -33,8 +43,17 @@ class Scenes(Base):
     slug = Column(String(50), unique=True)
     story_slug = Column(String, ForeignKey("stories.slug"))
 
-    story = relationship("Stories", back_populates="scenes", foreign_keys=[story_slug])
-    choices = relationship("Choices", back_populates="scenes", foreign_keys="Choices.scene_slug")
+    story = relationship(
+        "Stories",
+        back_populates="scenes",
+        foreign_keys=[story_slug]
+    )
+    choices = relationship(
+        "Choices",
+        back_populates="scenes",
+        foreign_keys="Choices.scene_slug"
+    )
+
 
 class Choices(Base):
     __table_args__ = (
@@ -42,15 +61,21 @@ class Choices(Base):
     )
     text = Column(String(100), nullable=False)
     scene_slug = Column(String, ForeignKey("scenes.slug"), name="scene_slug")
-    next_scene_slug = Column(String, ForeignKey("scenes.slug"), name="next_scene_slug")
+    next_scene_slug = Column(String, ForeignKey("scenes.slug"), name="next_scene_slug") # noqa
     is_active = Column(Boolean, default=True)
 
-    scenes = relationship("Scenes", back_populates="choices", foreign_keys=[scene_slug])
+    scenes = relationship(
+        "Scenes",
+        back_populates="choices",
+        foreign_keys=[scene_slug]
+    )
+
 
 def target_slug(target, value, oldvalue, initiator):
     if value and (not target.slug or value != oldvalue):
         target.slug = generate_slug(value)
 
-## burada olmaması gerekir. neden burada yazdım bilmiyorum. serviste oluşturmak daha mantıklı olabilir.
+
+# burada olmaması gerekir. neden burada yazdım bilmiyorum. serviste oluşturmak daha mantıklı olabilir. # noqa
 event.listen(Stories.title, "set", target_slug, retval=False)
 event.listen(Scenes.title, "set", target_slug, retval=False)

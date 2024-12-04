@@ -5,13 +5,28 @@ from fastapi.responses import StreamingResponse
 from auth.dependencies import get_current_user
 from auth.schemas import UserSystem
 from core.pagination import LimitOffsetPage
-from stories.dependencies import get_scene_dep, must_story_owner, must_scene_belongs_to_choice_or_exist
-from stories.schemas import (SceneCreateRequest, SceneCreateResponse,
-                             StoryCreateModel, StoryCreateResponseModel,
-                             StoryGetModel, StoryUpdateModel,
-                             StoryUpdateResponseModel, SceneUpdateRequest,
-                             SceneUpdateResponse,SceneInternal, ChoiceCreateRequest,
-                             ChoiceInternal, ChoiceUpdate, SceneGet, StoryDetailed, StoryImageModel)
+from stories.dependencies import (
+    get_scene_dep,
+    must_story_owner,
+    must_scene_belongs_to_choice_or_exist
+)
+from stories.schemas import (
+    SceneCreateRequest,
+    SceneCreateResponse,
+    StoryCreateModel,
+    StoryCreateResponseModel,
+    StoryGetModel,
+    StoryUpdateModel,
+    StoryUpdateResponseModel,
+    SceneUpdateRequest,
+    SceneUpdateResponse,
+    SceneInternal,
+    ChoiceCreateRequest,
+    ChoiceInternal,
+    ChoiceUpdate,
+    SceneGet,
+    StoryDetailed
+)
 from stories.service import StoryService
 from stories.constants import SceneTypes
 from s3.client import get_from_s3
@@ -19,12 +34,14 @@ from s3.client import get_from_s3
 
 image_router = APIRouter(prefix="/images")
 
+
 @image_router.get("/{image_id}")
 async def get_image(image_id: str):
     data = get_from_s3(image_id)
     return StreamingResponse(data.get("Body"))
 
 router = APIRouter(prefix="/stories")
+
 
 @router.post("", response_model=StoryCreateResponseModel, tags=["Story"])
 async def create_story(
@@ -34,6 +51,7 @@ async def create_story(
 ):
     return await service.create_story(payload=story, user=user)
 
+
 @router.get("", tags=["Story"], name="stories:list-stories")
 async def list_stories(
     service: StoryService = Depends(StoryService),
@@ -41,19 +59,33 @@ async def list_stories(
 ) -> LimitOffsetPage[StoryGetModel]:
     return await service.list_stories(categories=categories)
 
+
 @router.get("/me", tags=["Story"], name="stories:list-my-stories")
 async def list_my_stories(
     service: StoryService = Depends(StoryService),
     user: UserSystem = Depends(get_current_user)
 ) -> LimitOffsetPage[StoryGetModel]:
-    return await service.list_user_stories(user)
+    return await service.list_user_stories(user.username)
+
 
 @router.get(
-        "/{slug}/detailed",
-        tags=["Story"],
-        name="stories:detailed-story",
-        response_model=StoryDetailed,
-        dependencies=[Depends(must_story_owner)]
+    "/user/{username}",
+    tags=["Story"],
+    dependencies=[Depends(get_current_user)]
+)
+async def list_user_stories(
+    username: str,
+    service: StoryService = Depends(StoryService)
+) -> LimitOffsetPage[StoryGetModel]:
+    return await service.list_user_stories(username=username)
+
+
+@router.get(
+    "/{slug}/detailed",
+    tags=["Story"],
+    name="stories:detailed-story",
+    response_model=StoryDetailed,
+    dependencies=[Depends(must_story_owner)]
 )
 async def detailed_story(
     slug: str,
@@ -61,12 +93,14 @@ async def detailed_story(
 ):
     return await service.get_detailed_story(slug=slug)
 
-@router.get("/{slug}", response_model=StoryCreateResponseModel, tags=["Story"])
+
+@router.get("/{slug}", response_model=StoryGetModel, tags=["Story"])
 async def get_story(
     slug: str,
     service: StoryService = Depends(StoryService)
 ):
     return await service.get_story_by_slug(slug)
+
 
 @router.post("/{slug}/upload", tags=["Story"])
 async def upload_image_to_story(
@@ -76,11 +110,12 @@ async def upload_image_to_story(
 ):
     return await service.upload_image_to_story(slug, image)
 
+
 @router.patch(
-        "/{slug}",
-        response_model=StoryUpdateResponseModel,
-        tags=["Story"],
-        dependencies=[Depends(must_story_owner)]
+    "/{slug}",
+    response_model=StoryUpdateResponseModel,
+    tags=["Story"],
+    dependencies=[Depends(must_story_owner)]
 )
 async def update_story(
     slug: str,
@@ -94,13 +129,20 @@ async def update_story(
         user=user
     )
 
-@router.delete("/{slug}", status_code=status.HTTP_204_NO_CONTENT, tags=["Story"], dependencies=[Depends(must_story_owner)])
+
+@router.delete(
+    "/{slug}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    tags=["Story"],
+    dependencies=[Depends(must_story_owner)]
+)
 async def delete_story(
     slug: str,
     service: StoryService = Depends(StoryService),
     user: UserSystem = Depends(get_current_user)
 ):
     return await service.delete_story_by_slug(slug=slug, user=user)
+
 
 @router.get("/{slug}/scenes", tags=["Scene"])
 async def get_scenes_of_story(
@@ -110,13 +152,20 @@ async def get_scenes_of_story(
 ) -> LimitOffsetPage[SceneGet]:
     return await service.get_scenes_of_a_story(slug, type)
 
-@router.post("/{slug}/scenes", response_model=SceneCreateResponse, tags=["Scene"], dependencies=[Depends(must_story_owner)])
+
+@router.post(
+    "/{slug}/scenes",
+    response_model=SceneCreateResponse,
+    tags=["Scene"],
+    dependencies=[Depends(must_story_owner)]
+)
 async def create_scene(
     slug: str,
     payload: SceneCreateRequest,
     service: StoryService = Depends(StoryService)
 ):
     return await service.create_scene(payload=payload, slug=slug)
+
 
 @router.get("/{slug}/scenes/{scene_slug}", tags=["Scene"])
 async def get_scene(
@@ -126,7 +175,13 @@ async def get_scene(
 ):
     return await service.get_scene_by_slug(scene_slug=scene_slug, slug=slug)
 
-@router.patch("/{slug}/scenes/{scene_slug}", response_model=SceneUpdateResponse, tags=["Scene"], dependencies=[Depends(must_story_owner)])
+
+@router.patch(
+    "/{slug}/scenes/{scene_slug}",
+    response_model=SceneUpdateResponse,
+    tags=["Scene"],
+    dependencies=[Depends(must_story_owner)]
+)
 async def update_scene(
     slug: str,
     scene_slug: str,
@@ -139,6 +194,7 @@ async def update_scene(
         payload=payload
     )
 
+
 @router.post("/{slug}/scenes/{scene_slug}/upload", tags=["Scene"])
 async def upload_image_to_scene(
     slug: str,
@@ -148,7 +204,12 @@ async def upload_image_to_scene(
 ):
     return await service.upload_image_to_scene(slug, scene_slug, image)
 
-@router.delete("/{slug}/scenes/{scene_slug}", tags=["Scene"], dependencies=[Depends(must_story_owner)])
+
+@router.delete(
+    "/{slug}/scenes/{scene_slug}",
+    tags=["Scene"],
+    dependencies=[Depends(must_story_owner)]
+)
 async def delete_scene(
     slug: str,
     scene_slug: str,
@@ -156,13 +217,19 @@ async def delete_scene(
 ):
     return await service.delete_scene(scene_slug=scene_slug, slug=slug)
 
-@router.post("/{slug}/scenes/{scene_slug}/choices", tags=["Choices"], dependencies=[Depends(must_story_owner)])
+
+@router.post(
+    "/{slug}/scenes/{scene_slug}/choices",
+    tags=["Choices"],
+    dependencies=[Depends(must_story_owner)]
+)
 async def create_choice(
     scene_slug: str,
     payload: ChoiceCreateRequest,
     service: StoryService = Depends(StoryService)
 ):
     return await service.create_choice(payload=payload, scene_slug=scene_slug)
+
 
 @router.get("/{slug}/scenes/{scene_slug}/choices", tags=["Choices"])
 async def get_choices_of_a_scene(
@@ -171,11 +238,12 @@ async def get_choices_of_a_scene(
 ):
     return await service.get_choices_of_a_scene(scene=scene)
 
+
 @router.delete(
-        "/{slug}/scenes/{scene_slug}/choices/{choice_id}",
-        tags=["Choices"],
-        dependencies=[Depends(must_story_owner)],
-        status_code=status.HTTP_204_NO_CONTENT
+    "/{slug}/scenes/{scene_slug}/choices/{choice_id}",
+    tags=["Choices"],
+    dependencies=[Depends(must_story_owner)],
+    status_code=status.HTTP_204_NO_CONTENT
 )
 async def delete_choice_by_id(
     service: StoryService = Depends(StoryService),
@@ -183,10 +251,11 @@ async def delete_choice_by_id(
 ):
     return await service.delete_choice_by_id(choice=choice)
 
+
 @router.patch(
-        "/{slug}/scenes/{scene_slug}/choices/{choice_id}",
-        tags=["Choices"],
-        dependencies=[Depends(must_story_owner)]
+    "/{slug}/scenes/{scene_slug}/choices/{choice_id}",
+    tags=["Choices"],
+    dependencies=[Depends(must_story_owner)]
 )
 async def update_choice(
     payload: ChoiceUpdate,

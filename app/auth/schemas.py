@@ -1,6 +1,12 @@
 from typing import Optional
 
-from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
+from pydantic import (
+    BaseModel,
+    EmailStr,
+    Field,
+    field_validator,
+    model_validator
+)
 
 from auth.exceptions import PasswordsDoesNotMatchException
 from auth.constants import UserTypes
@@ -19,22 +25,33 @@ class UserSignupRequest(BaseModel):
             raise ValueError("Username can not contain '@' symbol")
         return v
 
+
 class UserSignupResponse(BaseModel):
     email: EmailStr
     username: str = Field(..., min_length=5, max_length=25)
     first_name: Optional[str] = None
     last_name: Optional[str] = None
 
+
+class UserGetResponse(BaseModel):
+    username: str = Field(..., min_length=5, max_length=25)
+    first_name: Optional[str] = None
+    last_name: Optional[str] = None
+
+
 class TokenResponse(BaseModel):
     access_token: str
     refresh_token: str
 
+
 class RefreshTokenRequest(BaseModel):
     refresh_token: str
+
 
 class TokenPayload(BaseModel):
     sub: str = None
     exp: int = None
+
 
 class UserSystem(BaseModel):
     id: int
@@ -44,6 +61,7 @@ class UserSystem(BaseModel):
     first_name: str | None = None
     last_name: str | None = None
     user_type: UserTypes | None = None
+
 
 class ChangePasswordRequest(BaseModel):
     old_password: str = Field(..., min_length=8)

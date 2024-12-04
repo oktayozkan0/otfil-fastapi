@@ -1,7 +1,10 @@
 from datetime import UTC, datetime
 
-from auth.exceptions import (InvalidCredentialsException,
-                             UnauthorizedException, UserNotFoundException)
+from auth.exceptions import (
+    InvalidCredentialsException,
+    UnauthorizedException,
+    UserNotFoundException
+)
 from auth.models import Users
 from auth.schemas import TokenPayload, UserSystem
 from auth.utils import ALGORITHM, JWT_SECRET_KEY
@@ -17,6 +20,7 @@ reusable_oauth = OAuth2PasswordBearer(
     tokenUrl="/api/v1/auth/login",
     scheme_name="JWT"
 )
+
 
 async def get_current_user(
         token: str = Depends(reusable_oauth),
@@ -36,7 +40,7 @@ async def get_current_user(
     except Exception:
         raise InvalidCredentialsException
 
-    stmt = select(Users).where(Users.email==token_data.sub)
+    stmt = select(Users).where(Users.email == token_data.sub)
     result = await db.execute(stmt)
     instance = result.scalar_one_or_none()
     if not instance:

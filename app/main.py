@@ -3,18 +3,17 @@ import sys
 
 sys.path.append(str(pathlib.Path(__file__).resolve().parent))
 
-import uvicorn
-from auth.router import router as auth_router
-from healthcheck import router as health_check_router
-from stories.router import router as story_router
-from stories.router import image_router as image_router
-from categories.router import router as category_router
-from core.config import get_app_settings
-from core.exceptions import http_error_handler
-from fastapi import FastAPI, HTTPException, staticfiles
-from fastapi_pagination import add_pagination
-from fastapi.middleware.cors import CORSMiddleware
-
+import uvicorn # noqa
+from auth.router import router as auth_router # noqa
+from healthcheck import router as health_check_router # noqa
+from stories.router import router as story_router # noqa
+from stories.router import image_router as image_router # noqa
+from categories.router import router as category_router # noqa
+from core.config import get_app_settings # noqa
+from core.exceptions import http_error_handler # noqa
+from fastapi import FastAPI, HTTPException, staticfiles # noqa
+from fastapi_pagination import add_pagination # noqa
+from fastapi.middleware.cors import CORSMiddleware # noqa
 
 
 def get_app() -> FastAPI:
@@ -32,7 +31,11 @@ def get_app() -> FastAPI:
     application.add_exception_handler(HTTPException, http_error_handler)
 
     v1_prefix = "/api/v1"
-    application.mount("/staticfiles", staticfiles.StaticFiles(directory="app/staticfiles"), name="static")
+    application.mount(
+        "/staticfiles",
+        staticfiles.StaticFiles(directory="app/staticfiles"),
+        name="static"
+    )
     application.include_router(health_check_router, prefix=v1_prefix)
     application.include_router(story_router, prefix=v1_prefix)
     application.include_router(image_router)

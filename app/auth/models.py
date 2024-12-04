@@ -1,6 +1,8 @@
-from core.models import Base
 from sqlalchemy import Boolean, Column, String, Enum
+from sqlalchemy.orm import relationship
 from auth.constants import UserTypes
+from core.models import Base
+
 
 class Users(Base):
     email = Column(String(254), unique=True)
@@ -11,3 +13,5 @@ class Users(Base):
     is_approved = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
     user_type = Column(Enum(UserTypes), nullable=True, default=UserTypes.USER)
+
+    stories = relationship("Stories", back_populates="user")
