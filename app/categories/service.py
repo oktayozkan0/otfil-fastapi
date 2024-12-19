@@ -12,8 +12,6 @@ from core.services import BaseService
 
 class CategoryService(BaseService):
     async def create_category(self, payload: CreateCategoryRequest, user: UserSystem):
-        if user.user_type != UserTypes.ADMIN:
-            raise NotAllowedException
         slug = slugify(payload.title)
         data = Categories(**payload.model_dump(), slug=slug)
         self.db.add(data)
