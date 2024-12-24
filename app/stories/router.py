@@ -70,8 +70,7 @@ async def list_my_stories(
 
 @router.get(
     "/user/{username}",
-    tags=["Story"],
-    dependencies=[Depends(get_current_user)]
+    tags=["Story"]
 )
 async def list_user_stories(
     username: str,
