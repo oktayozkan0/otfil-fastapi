@@ -51,7 +51,8 @@ class Scenes(Base):
     choices = relationship(
         "Choices",
         back_populates="scenes",
-        foreign_keys="Choices.scene_slug"
+        foreign_keys="Choices.scene_slug",
+        cascade="all, delete"
     )
 
 

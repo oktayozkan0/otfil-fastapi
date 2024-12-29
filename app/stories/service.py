@@ -113,7 +113,9 @@ class StoryService(BaseService):
                         Stories.description,
                         Stories.img
                     )
-                    .joinedload(Stories.scenes.and_(Scenes.is_active.is_(True)))
+                    .joinedload(
+                        Stories.scenes.and_(Scenes.is_active.is_(True))
+                    )
                     .load_only(
                         Scenes.text,
                         Scenes.title,
@@ -225,18 +227,23 @@ class StoryService(BaseService):
         stmt = select(Stories).where(
             Stories.slug == slug,
             Stories.owner_id == user.id
-        )
+        ).options(joinedload(Stories.scenes).joinedload(Scenes.choices))
         story = await self.db.execute(stmt)
-        instance = story.scalar_one_or_none()
+        instance = story.unique().scalar_one_or_none()
         if not instance or not instance.is_active:
             raise NotFoundException(
                 detail=f"Story with slug '{slug}' not found"
             )
-
-        delete_stmt = update(Stories).where(Stories.slug == slug).values(
-            is_active=False, deleted_at=datetime.now()
-        )
-        await self.db.execute(delete_stmt)
+        instance.is_active = False
+        instance.deleted_at = datetime.now()
+        if instance.scenes:
+            for scene in instance.scenes:
+                scene.is_active = False
+                scene.deleted_at = datetime.now()
+                if scene.choices:
+                    for choice in scene.choices:
+                        choice.is_active = False
+                        choice.deleted_at = datetime.now()
         await self.db.commit()
 
     async def get_scenes_of_a_story(self, slug: str, type: SceneTypes = None):
@@ -366,18 +373,20 @@ class StoryService(BaseService):
             Scenes.slug == scene_slug,
             Scenes.story_slug == slug,
             Scenes.is_active == True
-        )
+        ).options(joinedload(Scenes.choices))
         result = await self.db.execute(stmt)
-        instance = result.scalar_one_or_none()
+        instance = result.unique().scalar_one_or_none()
         if not instance:
             raise NotFoundException(
                 detail=f"Scene with slug '{scene_slug}' not found"
             )
 
-        del_stmt = update(Scenes).where(Scenes.slug == scene_slug).values(
-            is_active=False, deleted_at=datetime.now()
-        )
-        await self.db.execute(del_stmt)
+        instance.is_active = False
+        instance.deleted_at = datetime.now()
+        if instance.choices:
+            for choice in instance.choices:
+                choice.is_active = False
+                choice.deleted_at = datetime.now()
         await self.db.commit()
 
     async def create_choice(
@@ -391,16 +400,17 @@ class StoryService(BaseService):
         """
         stmt = select(Choices).where(
             Choices.scene_slug == scene_slug,
-            Choices.next_scene_slug == payload.next_scene_slug,
-            Choices.is_active == True
+            Choices.next_scene_slug == payload.next_scene_slug
         )
         result = await self.db.execute(stmt)
         instance = result.scalar_one_or_none()
-        if instance:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Choice not unique"
-            )
+
+        if instance and not instance.is_active:
+            instance.is_active = True
+            await self.db.commit()
+            return instance
+        elif instance and instance.is_active:
+            return instance
 
         data = Choices(**payload.model_dump(), scene_slug=scene_slug)
         self.db.add(data)
