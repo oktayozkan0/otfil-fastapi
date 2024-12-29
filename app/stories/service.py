@@ -113,7 +113,7 @@ class StoryService(BaseService):
                         Stories.description,
                         Stories.img
                     )
-                    .joinedload(Stories.scenes)
+                    .joinedload(Stories.scenes.and_(Scenes.is_active.is_(True)))
                     .load_only(
                         Scenes.text,
                         Scenes.title,
