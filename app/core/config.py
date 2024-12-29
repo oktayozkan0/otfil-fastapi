@@ -11,6 +11,7 @@ DEFAULTS = {
     "summary": "OTFIL API"
 }
 
+
 class AppSettings(BaseModel):
     debug: bool = True
     database_url: PostgresDsn | AnyUrl
@@ -28,10 +29,21 @@ class AppSettings(BaseModel):
     aws_region: str | None = None
     aws_access_key: str | None = None
     aws_secret_key: str | None = None
+    mail_username: str | None = None
+    mail_password: str | None = None
+    mail_from: str | None = None
+    mail_port: str | None = None
+    mail_server: str | None = None
+    mail_from_name: str | None = None
+    mail_starttls: bool = True
+    mail_ssl_tls: bool = False
+    use_credentials: bool = True
+    validate_certs: bool = True
+
 
 @lru_cache
 def get_app_settings() -> AppSettings:
-    config = {k.lower():v for k,v in dotenv_values().items()}
+    config = {k.lower(): v for k, v in dotenv_values().items()}
     settings = AppSettings(**config)
     if settings.debug:
         settings.__dict__.update(DEFAULTS)

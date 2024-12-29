@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verification Code</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        .email-container {
+            max-width: 600px;
+            margin: 20px auto;
+            background-color: #ffffff;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .email-header {
+            background-color: #007bff;
+            color: #ffffff;
+            padding: 20px;
+            text-align: center;
+        }
+        .email-header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+        .email-body {
+            padding: 20px;
+            text-align: center;
+        }
+        .email-body p {
+            font-size: 16px;
+            color: #333333;
+        }
+        .verification-code {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+            margin: 20px 0;
+        }
+        .email-footer {
+            background-color: #f4f4f4;
+            text-align: center;
+            padding: 10px;
+            font-size: 12px;
+            color: #999999;
+        }
+    </style>
+</head>
+<body>
+    <div class="email-container">
+        <div class="email-header">
+            <h1>Hesabınızı Doğrulayın</h1>
+        </div>
+        <div class="email-body">
+            <p>Merhaba,</p>
+            <p>Hesabınızı doğrulamak için aşağıdaki kodu kullanabilirsiniz:</p>
+            <div class="verification-code">{{ code }}</div>
+            <p>Bu kod yalnızca <strong>30 dakika</strong> boyunca geçerlidir.</p>
+            <p>Eğer böyle bir işlem başlatmadıysanız, lütfen bu e-postayı dikkate almayın.</p>
+        </div>
+        <div class="email-footer">
+            &copy; 2024 OTFIL. Tüm hakları saklıdır.
+        </div>
+    </div>
+</body>
+</html>

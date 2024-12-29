@@ -1,14 +1,16 @@
+from fastapi import APIRouter, Depends
+from fastapi.security import OAuth2PasswordRequestForm
+
 from auth.dependencies import get_current_user
 from auth.schemas import (
     RefreshTokenRequest,
     UserSignupRequest,
     UserSystem,
     ChangePasswordRequest,
-    UserSignupResponse
+    UserSignupResponse,
+    VerificationCodeRequest
 )
 from auth.service import AuthService
-from fastapi import APIRouter, Depends
-from fastapi.security import OAuth2PasswordRequestForm
 
 
 router = APIRouter(prefix="/auth", tags=["Auth"])
@@ -56,3 +58,20 @@ async def change_password(
     service: AuthService = Depends(AuthService)
 ):
     return await service.change_password(password=password, user=user)
+
+
+@router.post("/verification-code")
+async def send_verification_code(
+    user: UserSystem = Depends(get_current_user),
+    service: AuthService = Depends(AuthService)
+):
+    return await service.send_user_verification_code(user)
+
+
+@router.post("/verify")
+async def verify_code(
+    code: VerificationCodeRequest,
+    user: UserSystem = Depends(get_current_user),
+    service: AuthService = Depends(AuthService)
+):
+    return await service.verify_user_code(user, code)

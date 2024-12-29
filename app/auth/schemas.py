@@ -73,3 +73,7 @@ class ChangePasswordRequest(BaseModel):
         if self.new_password != self.confirm_new_password:
             raise PasswordsDoesNotMatchException
         return self
+
+
+class VerificationCodeRequest(BaseModel):
+    code: str = Field(..., max_length=6, min_length=6)

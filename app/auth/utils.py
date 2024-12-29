@@ -1,5 +1,7 @@
 from datetime import UTC, datetime, timedelta
 from typing import Any, Union
+import secrets
+import string
 
 from core.config import get_app_settings
 from jose import jwt
@@ -51,3 +53,7 @@ def create_refresh_token(
     to_encode = {"exp": expires_delta, "sub": str(subject)}
     encoded_jwt = jwt.encode(to_encode, JWT_REFRESH_SECRET_KEY, ALGORITHM)
     return encoded_jwt
+
+
+def generate_verification_code():
+    return ''.join(secrets.choice(string.digits) for _ in range(6))
