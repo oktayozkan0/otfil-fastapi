@@ -25,7 +25,8 @@ from stories.schemas import (
     ChoiceInternal,
     ChoiceUpdate,
     SceneGet,
-    StoryDetailed
+    StoryDetailed,
+    AddCategoryRequest
 )
 from stories.service import StoryService
 from stories.constants import SceneTypes
@@ -142,6 +143,32 @@ async def delete_story(
     user: UserSystem = Depends(get_current_user)
 ):
     return await service.delete_story_by_slug(slug=slug, user=user)
+
+
+@router.post(
+    "/{slug}/categories",
+    tags=["Story"],
+    dependencies=[Depends(must_story_owner)]
+)
+async def add_story_to_category(
+    slug: str,
+    payload: AddCategoryRequest,
+    service: StoryService = Depends(StoryService)
+):
+    return await service.add_category_to_story(payload, slug)
+
+
+@router.delete(
+    "/{slug}/categories",
+    tags=["Story"],
+    dependencies=[Depends(must_story_owner)]
+)
+async def delete_category_from_story(
+    slug: str,
+    payload: AddCategoryRequest,
+    service: StoryService = Depends(StoryService)
+):
+    return await service.delete_category_from_story(payload, slug)
 
 
 @router.get("/{slug}/scenes", tags=["Scene"])

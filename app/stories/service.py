@@ -3,7 +3,7 @@ from datetime import datetime
 from fastapi import HTTPException, status, UploadFile
 from fastapi.responses import JSONResponse
 from fastapi_pagination.ext.sqlalchemy import paginate
-from sqlalchemy import select, update, or_
+from sqlalchemy import select, update, or_, delete
 from sqlalchemy.orm import load_only, joinedload
 from sqlalchemy.exc import IntegrityError
 
@@ -21,7 +21,8 @@ from stories.schemas import (
     ChoiceCreateRequest,
     SceneInternal,
     ChoiceUpdate,
-    StoryUpdateModel
+    StoryUpdateModel,
+    AddCategoryRequest
 )
 from stories.exceptions import (
     CheckSlugsException,
@@ -155,6 +156,11 @@ class StoryService(BaseService):
             user: UserSystem
     ):
         """Updates story by its slug and ensures the user is the owner."""
+        if not update_data.categories:
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST,
+                "story must belong to at least one category"
+            )
         stmt = select(Stories).where(
             Stories.slug == slug,
             Stories.owner_id == user.id
@@ -169,7 +175,9 @@ class StoryService(BaseService):
         update_stmt = (
             update(Stories)
             .where(Stories.slug == slug)
-            .values(**update_data.model_dump(exclude_none=True))
+            .values(**update_data.model_dump(
+                exclude_none=True
+            ))
             .returning(Stories)
             .options(load_only(
                 Stories.slug,
@@ -458,3 +466,55 @@ class StoryService(BaseService):
         result = await self.db.execute(stmt)
         await self.db.commit()
         return result.scalar_one_or_none()
+
+    async def add_category_to_story(
+            self,
+            payload: AddCategoryRequest,
+            slug: str
+    ):
+        stmt = select(Categories).where(Categories.slug == payload.category)
+        result = await self.db.execute(stmt)
+        instance = result.scalar_one_or_none()
+        if not instance:
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST,
+                "category not found"
+            )
+        stmt = select(StoryCategories).where(
+            StoryCategories.story_slug == slug,
+            StoryCategories.category_slug == payload.category
+        )
+        result = await self.db.execute(stmt)
+        instance = result.scalar_one_or_none()
+        if instance:
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST,
+                "story already belongs to this category"
+            )
+        data = StoryCategories(story_slug=slug, category_slug=payload.category)
+        self.db.add(data)
+        await self.db.commit()
+        return data
+
+    async def delete_category_from_story(
+            self,
+            payload: AddCategoryRequest,
+            slug: str
+    ):
+        stmt = select(StoryCategories).where(
+            StoryCategories.story_slug == slug,
+            StoryCategories.category_slug == payload.category
+        )
+        result = await self.db.execute(stmt)
+        instance = result.scalar_one_or_none()
+        if not instance:
+            raise HTTPException(
+                status.HTTP_400_BAD_REQUEST,
+                "story does not belongs to this category"
+            )
+        stmt = delete(StoryCategories).where(
+            StoryCategories.story_slug == slug,
+            StoryCategories.category_slug == payload.category
+        )
+        await self.db.execute(stmt)
+        await self.db.commit()

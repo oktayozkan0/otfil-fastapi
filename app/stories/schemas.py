@@ -1,3 +1,4 @@
+from typing import Optional
 from pydantic import BaseModel, Field
 
 from stories.constants import SceneTypes
@@ -32,8 +33,8 @@ class StoryGetModel(StoryCreateResponseModel):
 
 
 class StoryUpdateModel(BaseModel):
-    title: str = Field(max_length=100)
-    description: str = Field(max_length=500)
+    title: Optional[str] = Field(None, max_length=100)
+    description: Optional[str] = Field(None, max_length=500)
 
 
 class StoryImageModel(BaseModel):
@@ -142,3 +143,7 @@ class SceneDetailed(SceneGet):
 
 class StoryDetailed(StoryGetModel):
     scenes: list[SceneDetailed]
+
+
+class AddCategoryRequest(BaseModel):
+    category: str
