@@ -28,13 +28,13 @@ class UserSignupRequest(BaseModel):
 
 class UserSignupResponse(BaseModel):
     email: EmailStr
-    username: str = Field(..., min_length=5, max_length=25)
+    username: str
     first_name: Optional[str] = None
     last_name: Optional[str] = None
 
 
 class UserGetResponse(BaseModel):
-    username: str = Field(..., min_length=5, max_length=25)
+    username: str
     first_name: Optional[str] = None
     last_name: Optional[str] = None
 
@@ -77,3 +77,12 @@ class ChangePasswordRequest(BaseModel):
 
 class VerificationCodeRequest(BaseModel):
     code: str = Field(..., max_length=6, min_length=6)
+
+
+class UserGetMeResponse(BaseModel):
+    email: EmailStr
+    username: str
+    first_name: str
+    last_name: str
+    is_approved: bool
+    is_active: bool

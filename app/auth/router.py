@@ -8,7 +8,8 @@ from auth.schemas import (
     UserSystem,
     ChangePasswordRequest,
     UserSignupResponse,
-    VerificationCodeRequest
+    VerificationCodeRequest,
+    UserGetMeResponse
 )
 from auth.service import AuthService
 
@@ -37,7 +38,7 @@ async def login(
     return await service.login_user(form_data)
 
 
-@router.get("/me")
+@router.get("/me", response_model=UserGetMeResponse)
 async def get_me(user: UserSystem = Depends(get_current_user)):
     return user
 

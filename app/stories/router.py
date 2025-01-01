@@ -85,7 +85,8 @@ async def list_user_stories(
     "/{slug}/detailed",
     tags=["Story"],
     name="stories:detailed-story",
-    response_model=StoryDetailed
+    response_model=StoryDetailed,
+    dependencies=[Depends(must_story_owner)]
 )
 async def detailed_story(
     slug: str,

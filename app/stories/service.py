@@ -77,7 +77,6 @@ class StoryService(BaseService):
             self.db,
             stmt
         )
-        print()
         return stories
 
     async def list_user_stories(self, username: str):
