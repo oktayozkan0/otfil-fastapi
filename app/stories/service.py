@@ -92,7 +92,7 @@ class StoryService(BaseService):
         )
         return stories
 
-    async def list_user_stories(self, username: str):
+    async def list_user_stories(self, username: str, user: UserSystem):
         user_stmt = select(Users).where(Users.username == username)
         user_results = await self.db.execute(user_stmt)
         user_instance = user_results.unique().scalar_one_or_none()
@@ -101,7 +101,6 @@ class StoryService(BaseService):
         stmt = (
             select(Stories)
             .where(
-                Stories.is_active == True,
                 Stories.owner_id == user_instance.id
             )
             .options(load_only(
@@ -110,6 +109,8 @@ class StoryService(BaseService):
                 Stories.slug
             ))
         )
+        if user.username != username:
+            stmt = stmt.where(Stories.is_active == True)
         stories = await paginate(self.db, stmt)
         return stories
 

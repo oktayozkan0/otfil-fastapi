@@ -29,6 +29,7 @@ class StoryGetModel(StoryCreateResponseModel):
     description: str = Field(max_length=500)
     img: str
     categories: list[GetCategoriesResponse] | None = None
+    is_active: bool
     user: UserGetResponse
 
 

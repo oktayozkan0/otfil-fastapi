@@ -54,7 +54,7 @@ async def create_story(
 
 
 @router.post(
-    "/story/{slug}/publish",
+    "/{slug}/publish",
     tags=["Story"],
     dependencies=[Depends(must_story_owner)]
 )
@@ -79,7 +79,7 @@ async def list_my_stories(
     service: StoryService = Depends(StoryService),
     user: UserSystem = Depends(get_current_user)
 ) -> LimitOffsetPage[StoryGetModel]:
-    return await service.list_user_stories(user.username)
+    return await service.list_user_stories(user.username, user)
 
 
 @router.get(
@@ -89,9 +89,10 @@ async def list_my_stories(
 )
 async def list_user_stories(
     username: str,
+    user: UserSystem = Depends(get_current_user),
     service: StoryService = Depends(StoryService)
 ) -> LimitOffsetPage[StoryGetModel]:
-    return await service.list_user_stories(username=username)
+    return await service.list_user_stories(username=username, user=user)
 
 
 @router.get(
