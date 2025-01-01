@@ -125,7 +125,8 @@ class StoryService(BaseService):
                         Stories.slug,
                         Stories.title,
                         Stories.description,
-                        Stories.img
+                        Stories.img,
+                        Stories.is_active
                     )
                     .joinedload(
                         Stories.scenes.and_(Scenes.is_active.is_(True))
