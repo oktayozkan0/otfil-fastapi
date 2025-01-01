@@ -1,5 +1,4 @@
 from typing import Optional
-import unicodedata
 import string
 
 from pydantic import (
@@ -25,7 +24,8 @@ class UserSignupRequest(BaseModel):
     def username_validator(cls, v: str):
         if "@" in v:
             raise ValueError("Username can not contain '@' symbol")
-        combined = string.ascii_lowercase + string.digits
+        combined: str = string.ascii_lowercase + string.digits
+        combined = combined + "_.-"
         for c in v:
             if c not in combined:
                 raise ValueError("Username can not contain special letters")
