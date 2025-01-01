@@ -53,6 +53,19 @@ async def create_story(
     return await service.create_story(payload=story, user=user)
 
 
+@router.post(
+    "/story/{slug}/publish",
+    tags=["Story"],
+    dependencies=[Depends(must_story_owner)]
+)
+async def publish_story(
+    slug: str,
+    service: StoryService = Depends(StoryService),
+    user: UserSystem = Depends(get_current_user)
+):
+    return await service.publish_story(slug, user)
+
+
 @router.get("", tags=["Story"], name="stories:list-stories")
 async def list_stories(
     service: StoryService = Depends(StoryService),
@@ -102,7 +115,11 @@ async def get_story(
     return await service.get_story_by_slug(slug)
 
 
-@router.post("/{slug}/upload", tags=["Story"])
+@router.post(
+    "/{slug}/upload",
+    tags=["Story"],
+    dependencies=[Depends(must_story_owner)]
+)
 async def upload_image_to_story(
     slug: str,
     image: UploadFile | None = None,
@@ -221,7 +238,11 @@ async def update_scene(
     )
 
 
-@router.post("/{slug}/scenes/{scene_slug}/upload", tags=["Scene"])
+@router.post(
+    "/{slug}/scenes/{scene_slug}/upload",
+    tags=["Scene"],
+    dependencies=[Depends(must_story_owner)]
+)
 async def upload_image_to_scene(
     slug: str,
     scene_slug: str,

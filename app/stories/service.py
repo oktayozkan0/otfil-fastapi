@@ -9,7 +9,8 @@ from sqlalchemy.exc import IntegrityError
 
 from auth.schemas import UserSystem
 from auth.models import Users
-from auth.exceptions import UserNotFoundException
+from auth.exceptions import UserNotFoundException, NotAllowedException
+from auth.constants import UserTypes
 from core.exceptions import NotFoundException
 from core.services import BaseService
 from categories.models import Categories
@@ -37,7 +38,7 @@ class StoryService(BaseService):
     async def create_story(self, payload: StoryCreateModel, user: UserSystem):
         """Creates a new story."""
         data = Stories(**payload.model_dump(
-            exclude={"categories"}), owner_id=user.id, is_active=True
+            exclude={"categories"}), owner_id=user.id, is_active=False
         )
         data.categories = []
         if payload.categories:
@@ -55,6 +56,18 @@ class StoryService(BaseService):
         self.db.add(data)
         await self.db.commit()
         return data
+
+    async def publish_story(self, slug: str, user: UserSystem):
+        if user.user_type == UserTypes.USER:
+            raise NotAllowedException
+        stmt = select(Stories).where(Stories.slug == slug)
+        result = await self.db.execute(stmt)
+        instance = result.scalar_one_or_none()
+        if not instance:
+            raise NotFoundException
+        instance.is_active = True
+        await self.db.commit()
+        return instance
 
     async def list_stories(self, categories: list[str] | None):
         """Returns a paginated list of active stories."""
