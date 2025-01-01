@@ -86,7 +86,3 @@ async def get_scene_dep(
     if not instance:
         raise NotFoundException(detail=f"Slug {scene_slug} not found")
     return instance
-
-
-async def check_scene_slugs_of_choice(scene_slug: str = Path(...)):
-    pass
