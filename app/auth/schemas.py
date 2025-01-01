@@ -1,4 +1,6 @@
 from typing import Optional
+import unicodedata
+import string
 
 from pydantic import (
     BaseModel,
@@ -20,9 +22,13 @@ class UserSignupRequest(BaseModel):
     last_name: Optional[str] = None
 
     @field_validator("username")
-    def reject_email(cls, v):
+    def username_validator(cls, v: str):
         if "@" in v:
             raise ValueError("Username can not contain '@' symbol")
+        combined = string.ascii_lowercase + string.digits
+        for c in v:
+            if c not in combined:
+                raise ValueError("Username can not contain special letters")
         return v
 
 
