@@ -22,8 +22,6 @@ class UserSignupRequest(BaseModel):
 
     @field_validator("username")
     def username_validator(cls, v: str):
-        if "@" in v:
-            raise ValueError("Username can not contain '@' symbol")
         combined: str = string.ascii_lowercase + string.digits
         combined = combined + "_.-"
         for c in v:
