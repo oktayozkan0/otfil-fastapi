@@ -12,6 +12,11 @@ from pydantic import (
 from auth.exceptions import PasswordsDoesNotMatchException
 from auth.constants import UserTypes
 
+from core.config import get_app_settings
+
+
+settings = get_app_settings()
+
 
 class UserSignupRequest(BaseModel):
     email: EmailStr
@@ -46,6 +51,8 @@ class UserGetResponse(BaseModel):
 class TokenResponse(BaseModel):
     access_token: str
     refresh_token: str
+    access_token_expire_min: int = settings.access_token_expire_minutes
+    refresh_token_expire_min: int = settings.refresh_token_expire_minutes
 
 
 class RefreshTokenRequest(BaseModel):
