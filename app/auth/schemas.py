@@ -90,3 +90,4 @@ class UserGetMeResponse(BaseModel):
     last_name: str
     is_approved: bool
     is_active: bool
+    user_type: UserTypes
