@@ -116,9 +116,9 @@ class StoryService(BaseService):
         stories = await paginate(self.db, stmt)
         return stories
 
-    async def get_detailed_story(self, slug: str):
+    async def get_detailed_story(self, slug: str, user: UserSystem | str):
         stmt = (select(Stories)
-                .where(Stories.is_active == True, Stories.slug == slug)
+                .where(Stories.slug == slug)
                 .options(
                     joinedload(Stories.categories),
                     joinedload(Stories.user),
@@ -147,8 +147,16 @@ class StoryService(BaseService):
                         Choices.next_scene_slug,
                         Choices.text
                     )))
+        if user == "unauthorized":
+            stmt = stmt.where(Stories.is_active == True)
         results = await self.db.execute(stmt)
         instance = results.unique().scalar_one_or_none()
+        if not instance:
+            raise NotFoundException
+        if (isinstance(user, Users) and (
+            user.username != instance.user.username
+        ) and (instance.is_active == False)):
+            raise NotFoundException
         return instance
 
     async def get_story_by_slug(self, slug: str):

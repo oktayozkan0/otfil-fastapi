@@ -102,9 +102,10 @@ async def list_user_stories(
 )
 async def detailed_story(
     slug: str,
-    service: StoryService = Depends(StoryService)
+    service: StoryService = Depends(StoryService),
+    user: UserSystem = Depends(state_dependent_user)
 ):
-    return await service.get_detailed_story(slug=slug)
+    return await service.get_detailed_story(slug=slug, user=user)
 
 
 @router.get("/{slug}", response_model=StoryGetModel, tags=["Story"])
