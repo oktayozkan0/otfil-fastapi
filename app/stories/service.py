@@ -180,11 +180,6 @@ class StoryService(BaseService):
             user: UserSystem
     ):
         """Updates story by its slug and ensures the user is the owner."""
-        if not update_data.categories:
-            raise HTTPException(
-                status.HTTP_400_BAD_REQUEST,
-                "story must belong to at least one category"
-            )
         stmt = select(Stories).where(
             Stories.slug == slug,
             Stories.owner_id == user.id
