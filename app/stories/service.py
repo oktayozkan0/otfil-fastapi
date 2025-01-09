@@ -109,7 +109,7 @@ class StoryService(BaseService):
                 Stories.slug
             ))
         )
-        if isinstance(user, UserSystem) and user.username != username:
+        if isinstance(user, Users) and user.username != username:
             stmt = stmt.where(Stories.is_active == True)
         elif user == "unauthorized":
             stmt = stmt.where(Stories.is_active == True)
