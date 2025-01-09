@@ -58,3 +58,46 @@ async def get_current_user(
     if not instance:
         raise UserNotFoundException
     return instance
+
+
+dependent_reusable_oauth = reusable_oauth
+dependent_reusable_oauth.auto_error = False
+
+
+async def state_dependent_user(
+        token: str = Depends(dependent_reusable_oauth),
+        db: AsyncSession = Depends(get_db)
+):
+    if not token:
+        return "unauthorized"
+    try:
+        payload = jwt.decode(
+            token=token,
+            key=JWT_SECRET_KEY,
+            algorithms=[ALGORITHM]
+        )
+        token_data = TokenPayload(**payload)
+        token_timestamp = datetime.fromtimestamp(token_data.exp, UTC)
+        now = datetime.now(UTC)
+        if token_timestamp < now:
+            raise UnauthorizedException
+    except Exception:
+        raise InvalidCredentialsException
+
+    stmt = select(Users).where(Users.email == token_data.sub).options(
+        load_only(
+            Users.email,
+            Users.username,
+            Users.first_name,
+            Users.last_name,
+            Users.is_active,
+            Users.is_approved,
+            Users.user_type
+        )
+    )
+
+    result = await db.execute(stmt)
+    instance = result.scalar_one_or_none()
+    if not instance:
+        raise UserNotFoundException
+    return instance

@@ -12,7 +12,6 @@ from categories.router import router as category_router # noqa
 from core.config import get_app_settings # noqa
 from core.exceptions import http_error_handler # noqa
 from fastapi import FastAPI, HTTPException, staticfiles # noqa
-from fastapi.templating import Jinja2Templates
 from fastapi_pagination import add_pagination # noqa
 from fastapi.middleware.cors import CORSMiddleware # noqa
 

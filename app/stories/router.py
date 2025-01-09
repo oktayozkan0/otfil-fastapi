@@ -2,7 +2,7 @@ from typing import Annotated
 from fastapi import APIRouter, Depends, status, Query, UploadFile
 from fastapi.responses import StreamingResponse
 
-from auth.dependencies import get_current_user
+from auth.dependencies import get_current_user, state_dependent_user
 from auth.schemas import UserSystem
 from core.pagination import LimitOffsetPage
 from stories.dependencies import (
@@ -84,12 +84,11 @@ async def list_my_stories(
 
 @router.get(
     "/user/{username}",
-    tags=["Story"],
-    dependencies=[Depends(get_current_user)]
+    tags=["Story"]
 )
 async def list_user_stories(
     username: str,
-    user: UserSystem = Depends(get_current_user),
+    user: UserSystem | str = Depends(state_dependent_user),
     service: StoryService = Depends(StoryService)
 ) -> LimitOffsetPage[StoryGetModel]:
     return await service.list_user_stories(username=username, user=user)
