@@ -109,7 +109,9 @@ class StoryService(BaseService):
                 Stories.slug
             ))
         )
-        if user == "unauthorized":
+        if isinstance(user, UserSystem) and user.username != username:
+            stmt = stmt.where(Stories.is_active == True)
+        elif user == "unauthorized":
             stmt = stmt.where(Stories.is_active == True)
         stories = await paginate(self.db, stmt)
         return stories
