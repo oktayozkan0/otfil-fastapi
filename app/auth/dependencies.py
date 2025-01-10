@@ -49,7 +49,8 @@ async def get_current_user(
             Users.last_name,
             Users.is_active,
             Users.is_approved,
-            Users.user_type
+            Users.user_type,
+            Users.avatar
         )
     )
 
