@@ -13,5 +13,5 @@ class Users(Base):
     is_approved = Column(Boolean, default=False)
     is_active = Column(Boolean, default=True)
     user_type = Column(Enum(UserTypes), nullable=True, default=UserTypes.USER)
-
+    avatar = Column(String(150), nullable=True)
     stories = relationship("Stories", back_populates="user")
