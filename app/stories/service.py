@@ -148,7 +148,9 @@ class StoryService(BaseService):
                         Scenes.type,
                         Scenes.img
                     )
-                    .joinedload(Scenes.choices).load_only(
+                    .joinedload(Scenes.choices.and_(
+                        Choices.is_active.is_(True))
+                    ).load_only(
                         Choices.scene_slug,
                         Choices.next_scene_slug,
                         Choices.text
