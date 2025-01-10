@@ -151,6 +151,7 @@ class StoryService(BaseService):
                     .joinedload(Scenes.choices.and_(
                         Choices.is_active.is_(True))
                     ).load_only(
+                        Choices.id,
                         Choices.scene_slug,
                         Choices.next_scene_slug,
                         Choices.text
