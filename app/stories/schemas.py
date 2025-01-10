@@ -135,7 +135,7 @@ class SceneInternal(BaseModel):
 
 class ChoiceGet(BaseModel):
     scene_slug: str
-    next_scene_slug: str
+    next_scene_slug: str | None
     text: str
 
 
