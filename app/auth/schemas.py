@@ -24,6 +24,7 @@ class UserSignupRequest(BaseModel):
     password: str = Field(..., min_length=8)
     first_name: Optional[str] = None
     last_name: Optional[str] = None
+    avatar: str | None = None
 
     @field_validator("username")
     def username_validator(cls, v: str):
@@ -40,12 +41,14 @@ class UserSignupResponse(BaseModel):
     username: str
     first_name: Optional[str] = None
     last_name: Optional[str] = None
+    avatar: str | None = None
 
 
 class UserGetResponse(BaseModel):
     username: str
     first_name: Optional[str] = None
     last_name: Optional[str] = None
+    avatar: str | None = None
 
 
 class TokenResponse(BaseModel):
@@ -72,6 +75,7 @@ class UserSystem(BaseModel):
     first_name: str | None = None
     last_name: str | None = None
     user_type: UserTypes | None = None
+    avatar: str | None = None
 
 
 class ChangePasswordRequest(BaseModel):
@@ -98,3 +102,4 @@ class UserGetMeResponse(BaseModel):
     is_approved: bool
     is_active: bool
     user_type: UserTypes
+    avatar: str | None = None
