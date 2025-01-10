@@ -427,7 +427,7 @@ class StoryService(BaseService):
                 )
                 result = await self.db.execute(stmt)
                 instance = result.scalar_one_or_none()
-                instance.next_scene_slug = None
+                instance.is_active = False
         await self.db.commit()
 
     async def create_choice(
