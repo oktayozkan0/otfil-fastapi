@@ -33,7 +33,7 @@ class Stories(Base):
 
 
 class Scenes(Base):
-    text = Column(String(255), nullable=False)
+    text = Column(String(512), nullable=False)
     title = Column(String(50), nullable=True, default=None)
     x = Column(Float, default=0)
     y = Column(Float, default=0)
