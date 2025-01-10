@@ -56,7 +56,8 @@ async def create_story(
 @router.post(
     "/{slug}/publish",
     tags=["Story"],
-    dependencies=[Depends(must_story_owner)]
+    dependencies=[Depends(must_story_owner)],
+    response_model=StoryUpdateResponseModel
 )
 async def publish_story(
     slug: str,

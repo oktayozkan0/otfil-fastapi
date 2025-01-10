@@ -60,12 +60,18 @@ class StoryService(BaseService):
     async def publish_story(self, slug: str, user: UserSystem):
         if user.user_type == UserTypes.USER:
             raise NotAllowedException
-        stmt = select(Stories).where(Stories.slug == slug)
+        stmt = select(Stories).where(Stories.slug == slug).options(
+            joinedload(Stories.scenes).joinedload(Scenes.choices)
+        )
         result = await self.db.execute(stmt)
-        instance = result.scalar_one_or_none()
+        instance = result.unique().scalar_one_or_none()
         if not instance:
             raise NotFoundException
         instance.is_active = True
+        for scene in instance.scenes:
+            scene.is_active = True
+            for choice in scene.choices:
+                choice.is_active = True
         await self.db.commit()
         return instance
 

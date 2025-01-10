@@ -46,6 +46,7 @@ class StoryUpdateResponseModel(BaseModel):
     slug: str
     title: str = Field(max_length=100)
     description: str = Field(max_length=500)
+    is_active: bool
 
 
 class StoryInternal(BaseModel):
