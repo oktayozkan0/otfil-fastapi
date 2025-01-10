@@ -9,7 +9,8 @@ from auth.schemas import (
     ChangePasswordRequest,
     UserSignupResponse,
     VerificationCodeRequest,
-    UserGetMeResponse
+    UserGetMeResponse,
+    UserUpdateRequest
 )
 from auth.service import AuthService
 
@@ -41,6 +42,15 @@ async def login(
 @router.get("/me", response_model=UserGetMeResponse)
 async def get_me(user: UserSystem = Depends(get_current_user)):
     return user
+
+
+@router.patch("/me", response_model=UserUpdateRequest)
+async def update_me(
+    data: UserUpdateRequest,
+    user: UserSystem = Depends(get_current_user),
+    service: AuthService = Depends(AuthService)
+):
+    return await service.update_user(data=data, user=user)
 
 
 @router.post("/refresh")

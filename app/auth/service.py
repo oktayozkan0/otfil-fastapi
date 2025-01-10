@@ -14,7 +14,8 @@ from auth.schemas import (
     UserSignupRequest,
     ChangePasswordRequest,
     UserSystem,
-    VerificationCodeRequest
+    VerificationCodeRequest,
+    UserUpdateRequest
 )
 from auth.utils import (
     ALGORITHM,
@@ -213,3 +214,10 @@ class AuthService(BaseService):
         user_db.is_approved = True
         await self.db.commit()
         return JSONResponse({"message": "user verified"}, status_code=200)
+
+    async def update_user(self, data: UserUpdateRequest, user: Users):
+        user.first_name = data.first_name if data.first_name else user.first_name # noqa
+        user.last_name = data.last_name if data.last_name else user.last_name
+        user.avatar = data.avatar if data.avatar else user.avatar
+        await self.db.commit()
+        return UserUpdateRequest(**user.__dict__)

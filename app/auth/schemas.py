@@ -103,3 +103,9 @@ class UserGetMeResponse(BaseModel):
     is_active: bool
     user_type: UserTypes
     avatar: str | None = None
+
+
+class UserUpdateRequest(BaseModel):
+    first_name: str | None = None
+    last_name: str | None = None
+    avatar: str | None = None
