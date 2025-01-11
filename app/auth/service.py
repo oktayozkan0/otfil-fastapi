@@ -168,8 +168,8 @@ class AuthService(BaseService):
     async def send_user_verification_code(self, user: UserSystem):
         user_db = await self.get_user(user)
 
-        if user_db.is_active:
-            JSONResponse({"message": "user already active"}, status_code=200)
+        if user_db.is_approved:
+            JSONResponse({"message": "user already approved"}, status_code=200)
 
         code = generate_verification_code()
 
