@@ -67,6 +67,20 @@ async def publish_story(
     return await service.publish_story(slug, user)
 
 
+@router.post(
+    "/{slug}/unpublish",
+    tags=["Story"],
+    dependencies=[Depends(must_story_owner)],
+    response_model=StoryUpdateResponseModel
+)
+async def unpublish_story(
+    slug: str,
+    service: StoryService = Depends(StoryService),
+    user: UserSystem = Depends(get_current_user)
+):
+    return await service.unpublish_story(slug, user)
+
+
 @router.get("", tags=["Story"], name="stories:list-stories")
 async def list_stories(
     service: StoryService = Depends(StoryService),

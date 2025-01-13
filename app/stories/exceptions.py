@@ -36,3 +36,15 @@ class CannotUploadImageException(HTTPException):
         status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
         detail = "Could not upload image"
         super().__init__(status_code, detail, headers)
+
+
+class AlreadyUnpublishedException(HTTPException):
+    def __init__(
+            self,
+            status_code: int,
+            detail: Any = None,
+            headers: Dict[str, str] | None = None
+    ) -> None:
+        status_code = status.HTTP_400_BAD_REQUEST
+        detail = "already unpublished"
+        super().__init__(status_code, detail, headers)

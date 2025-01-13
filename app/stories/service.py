@@ -28,7 +28,8 @@ from stories.schemas import (
 from stories.exceptions import (
     CheckSlugsException,
     BeginningSceneAlreadyExistException,
-    CannotUploadImageException
+    CannotUploadImageException,
+    AlreadyUnpublishedException
 )
 from stories.constants import SceneTypes, ALLOWED_IMAGE_TYPES
 from s3.client import upload_to_s3, delete_from_s3
@@ -72,6 +73,20 @@ class StoryService(BaseService):
             scene.is_active = True
             for choice in scene.choices:
                 choice.is_active = True
+        await self.db.commit()
+        return instance
+
+    async def unpublish_story(self, slug: str, user: UserSystem):
+        if user.user_type == UserTypes.USER:
+            raise NotAllowedException
+        stmt = select(Stories).where(Stories.slug == slug)
+        result = await self.db.execute(stmt)
+        instance = result.unique().scalar_one_or_none()
+        if not instance:
+            raise NotFoundException
+        if not instance.is_active:
+            raise AlreadyUnpublishedException
+        instance.is_active = False
         await self.db.commit()
         return instance
 
