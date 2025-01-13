@@ -69,10 +69,6 @@ class StoryService(BaseService):
         if not instance:
             raise NotFoundException
         instance.is_active = True
-        for scene in instance.scenes:
-            scene.is_active = True
-            for choice in scene.choices:
-                choice.is_active = True
         await self.db.commit()
         return instance
 
