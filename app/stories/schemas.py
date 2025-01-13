@@ -69,7 +69,7 @@ class SceneGet(BaseModel):
 
 
 class SceneCreateRequest(BaseModel):
-    text: str
+    text: str = Field(max_length=512)
     title: str
     x: float
     y: float
@@ -87,7 +87,7 @@ class SceneCreateResponse(BaseModel):
 
 
 class SceneUpdateRequest(BaseModel):
-    text: str = Field(max_length=255)
+    text: str = Field(max_length=512)
     title: str = Field(max_length=50)
     x: float = None
     y: float = None
