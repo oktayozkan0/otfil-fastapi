@@ -419,16 +419,19 @@ class StoryService(BaseService):
 
         instance.is_active = False
         instance.deleted_at = datetime.now()
+
+        related_choices = select(Choices).where(
+            Choices.next_scene_slug == instance.slug
+        )
+        result = await self.db.execute(related_choices)
+        related_choice_instance = result.scalar_one_or_none()
+        related_choice_instance.is_active = False
+        related_choice_instance.deleted_at = datetime.now()
+
         if instance.choices:
             for choice in instance.choices:
                 choice.is_active = False
                 choice.deleted_at = datetime.now()
-                stmt = select(Choices).where(
-                    Choices.next_scene_slug == choice.scene_slug
-                )
-                result = await self.db.execute(stmt)
-                instance = result.scalar_one_or_none()
-                instance.is_active = False
         await self.db.commit()
 
     async def create_choice(
