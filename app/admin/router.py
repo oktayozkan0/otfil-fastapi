@@ -33,7 +33,7 @@ async def get_users(
     return await service.get_users(params=params)
 
 
-@router.post("/users/{username}")
+@router.patch("/users/{username}")
 async def edit_user(
     username: str,
     data: UserEditRequest,
