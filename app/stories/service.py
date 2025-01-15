@@ -120,7 +120,7 @@ class StoryService(BaseService):
             .where(
                 Stories.owner_id == user_instance.id
             )
-            .options(load_only(
+            .options(joinedload(Stories.user), load_only(
                 Stories.description,
                 Stories.title,
                 Stories.slug
