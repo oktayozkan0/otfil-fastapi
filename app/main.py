@@ -4,6 +4,7 @@ import sys
 sys.path.append(str(pathlib.Path(__file__).resolve().parent))
 
 import uvicorn # noqa
+from admin.router import router as admin_router # noqa
 from auth.router import router as auth_router # noqa
 from healthcheck import router as health_check_router # noqa
 from stories.router import router as story_router # noqa
@@ -41,6 +42,7 @@ def get_app() -> FastAPI:
     application.include_router(image_router)
     application.include_router(auth_router, prefix=v1_prefix)
     application.include_router(category_router, prefix=v1_prefix)
+    application.include_router(admin_router, prefix=v1_prefix)
     add_pagination(application)
     return application
 
