@@ -1,9 +1,11 @@
-from sqlalchemy import select, and_, func
+from sqlalchemy import select, and_, func, update
 from fastapi_pagination.ext.sqlalchemy import paginate
 from enum import StrEnum
 
-from admin.schemas import UserSearchParams
+from admin.schemas import UserSearchParams, UserEditRequest
 from auth.models import Users
+from auth.utils import get_hashed_password
+from auth.exceptions import UserNotFoundException
 from core.services import BaseService
 
 
@@ -26,3 +28,20 @@ class AdminService(BaseService):
             stmt
         )
         return results
+
+    async def edit_user(self, username: str, data: UserEditRequest):
+        stmt = select(Users).where(Users.username == username)
+        result = await self.db.execute(stmt)
+        instance = result.scalar_one_or_none()
+        if not instance:
+            raise UserNotFoundException
+        if data.password:
+            data.password = get_hashed_password(data.password)
+        dump_data = data.model_dump(exclude_none=True)
+        update_stmt = update(Users).where(
+            Users.username == username
+        ).values(**dump_data).returning(Users)
+        result = await self.db.execute(update_stmt)
+        await self.db.commit()
+        instance = result.scalar_one_or_none()
+        return instance

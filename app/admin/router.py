@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends
 
 from admin.service import AdminService
 from admin.dependencies import get_admin
-from admin.schemas import UserSearchParams, UserListResponse
+from admin.schemas import UserSearchParams, UserListResponse, UserEditRequest
 from auth.constants import UserTypes
 from core.pagination import LimitOffsetPage
 
@@ -31,3 +31,12 @@ async def get_users(
         user_type=user_type
     )
     return await service.get_users(params=params)
+
+
+@router.post("/users/{username}")
+async def edit_user(
+    username: str,
+    data: UserEditRequest,
+    service: AdminService = Depends(AdminService)
+):
+    return await service.edit_user(username=username, data=data)
