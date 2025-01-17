@@ -435,10 +435,11 @@ class StoryService(BaseService):
             Choices.next_scene_slug == instance.slug
         )
         result = await self.db.execute(related_choices)
-        related_choice_instance = result.scalar_one_or_none()
+        related_choice_instance = result.scalars().all()
         if related_choice_instance:
-            related_choice_instance.is_active = False
-            related_choice_instance.deleted_at = datetime.now()
+            for related_choice in related_choice_instance:
+                related_choice.is_active = False
+                related_choice.deleted_at = datetime.now()
 
         if instance.choices:
             for choice in instance.choices:
