@@ -28,11 +28,13 @@ class UserSignupRequest(BaseModel):
 
     @field_validator("username")
     def username_validator(cls, v: str):
-        combined: str = string.ascii_lowercase + string.digits + string.ascii_uppercase # noqa
+        combined: str = string.ascii_lowercase + string.digits
         combined = combined + "_.-"
         for c in v:
             if c not in combined:
-                raise ValueError("Username can not contain special letters")
+                raise ValueError(
+                    "Username can not contain special letters or upper case characters"
+                )
         return v
 
 
