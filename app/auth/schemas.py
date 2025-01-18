@@ -28,7 +28,7 @@ class UserSignupRequest(BaseModel):
 
     @field_validator("username")
     def username_validator(cls, v: str):
-        combined: str = string.ascii_lowercase + string.digits
+        combined: str = string.ascii_lowercase + string.digits + string.ascii_uppercase # noqa
         combined = combined + "_.-"
         for c in v:
             if c not in combined:
