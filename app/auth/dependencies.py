@@ -50,6 +50,7 @@ async def get_current_user(
             Users.is_active,
             Users.is_approved,
             Users.user_type,
+            Users.password,
             Users.avatar
         )
     )

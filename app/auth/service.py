@@ -141,13 +141,11 @@ class AuthService(BaseService):
     async def change_password(
             self,
             password: ChangePasswordRequest,
-            user: UserSystem
+            user: Users
     ):
-        # Verify current password
         if not verify_password(password.old_password, user.password):
             raise WrongPasswordException
 
-        # Hash new password and update it in the database
         hashed_password = get_hashed_password(password.new_password)
         stmt = (
             update(Users)
