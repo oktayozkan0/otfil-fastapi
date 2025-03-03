@@ -1,5 +1,4 @@
 # OTFIL
-https://www.otfil.com
 Still under development.
 
 ## Please do not copy paste any AI generated code.
